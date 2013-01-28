@@ -1,29 +1,10 @@
-# Agrosica JSON-RPC Client and Server
-
-Yes, yet another JSON-RPC client and server implementation.
-
-## Why should I care?
-
-Because the client works equally well in Node.js and the browser, and if this client communicates with this server, *magic* happens and you can both define and use your RPC functions in a natural, Javascript-y way. (Nicer than the existing JSONRPC clients and servers, we think!)
-
-Note that this is an initial release of the libraries, the API will be tidied up slightly shortly.
-
-## Install
-
-    npm install agro-jsonrpc-server
-    npm install agro-jsonrpc-client
-
-## Server Usage
-
-TODO: Server example
-
-## Client Usage
-
-TODO: Client example
+# Multitransport JSON-RPC Client and Server
 
 ## License (MIT)
 
-Copyright (C) 2011 by Agrosica, Inc, David Ellis, Alain Rodriguez, Hector Lugo
+Portions Copyright (C) 2013 by David Ellis
+
+Portions Copyright (C) 2011 by Agrosica, Inc, David Ellis, Alain Rodriguez, Hector Lugo
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

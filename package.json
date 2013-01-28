@@ -1,0 +1,10 @@
+{
+	"contributors": [
+		{"name": "David Ellis", "email": "d.f.ellis@ieee.org"},
+		{"name": "Alain Rodriguez", "email": "eagle5command@gmail.com"}
+	],
+	"name": "multitransport-jsonrpc",
+	"version": "0.1.0",
+	"description": "",
+	"main": "lib/index.js"
+}
