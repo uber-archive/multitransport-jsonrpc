@@ -1,7 +1,6 @@
 var HttpTransport = require('../lib/transports/server/http');
 var http = require('http');
 
-
 exports.loopback = function(test) {
     test.expect(2);
     var httpTransport = new HttpTransport(11235);
