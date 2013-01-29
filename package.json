@@ -6,5 +6,16 @@
 	"name": "multitransport-jsonrpc",
 	"version": "0.1.0",
 	"description": "",
-	"main": "lib/index.js"
+	"main": "lib/index.js",
+    "dependencies": {
+        "xmlhttprequest": "*",
+        "queue-flow": "*",
+        "lambda-js": "*"
+    },
+    "devDependencies": {
+        "nodeunit": "*"
+    },
+    "scripts": {
+        "test": "nodeunit test/*.js"
+    }
 }
