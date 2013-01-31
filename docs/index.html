@@ -2,8 +2,14 @@
     <span class="nx">server</span><span class="o">:</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./server&#39;</span><span class="p">),</span>
     <span class="nx">client</span><span class="o">:</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./client&#39;</span><span class="p">),</span>
     <span class="nx">transports</span><span class="o">:</span> <span class="p">{</span>
-        <span class="nx">http</span><span class="o">:</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./transports/http&#39;</span><span class="p">),</span>
-        <span class="nx">tcp</span><span class="o">:</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./transports/tcp&#39;</span><span class="p">)</span>
+        <span class="nx">client</span><span class="o">:</span> <span class="p">{</span>
+            <span class="nx">http</span><span class="o">:</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./transports/client/http&#39;</span><span class="p">),</span>
+            <span class="nx">tcp</span><span class="o">:</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./transports/client/tcp&#39;</span><span class="p">)</span>
+        <span class="p">},</span>
+        <span class="nx">server</span><span class="o">:</span> <span class="p">{</span>
+            <span class="nx">http</span><span class="o">:</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./transports/server/http&#39;</span><span class="p">),</span>
+            <span class="nx">tcp</span><span class="o">:</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./transports/server/tcp&#39;</span><span class="p">)</span>
+        <span class="p">}</span>
     <span class="p">}</span>
 <span class="p">};</span>
 
