@@ -4,7 +4,7 @@
 		{"name": "Alain Rodriguez", "email": "eagle5command@gmail.com"}
 	],
 	"name": "multitransport-jsonrpc",
-	"version": "0.2.1",
+	"version": "0.2.2",
 	"description": "",
 	"main": "lib/index.js",
     "dependencies": {
@@ -16,7 +16,7 @@
         "docco": "*"
     },
     "scripts": {
-        "realpublish": "npm test && docco ./lib/*.js && docco ./lib/transports/client/*.js --output docs/client && docco ./lib/transports/server/*.js --output docs/server && git commit -am 'Automatic documentation of version $npm_package_version' && git tag $npm_package_version && git push && git push --tags && npm publish",
+        "realpublish": "npm test && docco ./lib/*.js && docco ./lib/transports/client/*.js --output docs/client && docco ./lib/transports/server/*.js --output docs/server && git commit -am \"Automatic documentation of version $npm_package_version\" && git tag $npm_package_version && git push && git push --tags && npm publish",
         "test": "nodeunit test/*.js"
     }
 }
