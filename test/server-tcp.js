@@ -55,3 +55,12 @@ exports.failure = function(test) {
         test.done();
     });
 };
+
+exports.listening = function(test) {
+    test.expect(1);
+    var tcpTransport = new TcpTransport(12346, { listen: function() {
+        test.ok(true, 'listening callback fired');
+        tcpTransport.server.close();
+        test.done()
+    } });
+};
