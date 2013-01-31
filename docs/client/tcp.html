@@ -5,6 +5,8 @@
     <span class="k">this</span><span class="p">.</span><span class="nx">server</span> <span class="o">=</span> <span class="nx">server</span><span class="p">;</span>
     <span class="k">this</span><span class="p">.</span><span class="nx">port</span> <span class="o">=</span> <span class="nx">port</span><span class="p">;</span>
     <span class="k">this</span><span class="p">.</span><span class="nx">requests</span> <span class="o">=</span> <span class="p">{};</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">timeout</span> <span class="o">=</span> <span class="nx">config</span><span class="p">.</span><span class="nx">timeout</span> <span class="o">||</span> <span class="mi">2</span><span class="o">*</span><span class="mi">60</span><span class="o">*</span><span class="mi">1000</span><span class="p">;</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">sweepInterval</span> <span class="o">=</span> <span class="nx">setInterval</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">sweep</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="k">this</span><span class="p">),</span> <span class="k">this</span><span class="p">.</span><span class="nx">timeout</span><span class="p">);</span>
 
     <span class="k">this</span><span class="p">.</span><span class="nx">con</span> <span class="o">=</span> <span class="nx">net</span><span class="p">.</span><span class="nx">connect</span><span class="p">({</span>
         <span class="nx">host</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">server</span><span class="p">,</span>
@@ -23,6 +25,7 @@
                 <span class="p">}</span> <span class="k">catch</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
                 <span class="p">}</span>
                 <span class="k">if</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">requests</span><span class="p">[</span><span class="nx">json</span><span class="p">.</span><span class="nx">id</span><span class="p">])</span> <span class="k">this</span><span class="p">.</span><span class="nx">requests</span><span class="p">[</span><span class="nx">json</span><span class="p">.</span><span class="nx">id</span><span class="p">](</span><span class="nx">json</span><span class="p">);</span>
+                <span class="k">delete</span> <span class="k">this</span><span class="p">.</span><span class="nx">requests</span><span class="p">[</span><span class="nx">json</span><span class="p">.</span><span class="nx">id</span><span class="p">];</span>
                 <span class="nx">buffer</span> <span class="o">=</span> <span class="nx">next</span><span class="p">;</span>
                 <span class="nx">nullSpot</span> <span class="o">=</span> <span class="nx">buffer</span><span class="p">.</span><span class="nx">search</span><span class="p">(</span><span class="sr">/\0/</span><span class="p">);</span>
             <span class="p">}</span>
@@ -39,7 +42,20 @@
     <span class="k">if</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">con</span><span class="p">)</span> <span class="p">{</span>
         <span class="k">this</span><span class="p">.</span><span class="nx">con</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">body</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;\0&#39;</span><span class="p">);</span>
         <span class="k">this</span><span class="p">.</span><span class="nx">requests</span><span class="p">[</span><span class="nx">body</span><span class="p">.</span><span class="nx">id</span><span class="p">]</span> <span class="o">=</span> <span class="nx">callback</span><span class="p">;</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">requests</span><span class="p">[</span><span class="nx">body</span><span class="p">.</span><span class="nx">id</span><span class="p">].</span><span class="nx">timestamp</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Date</span><span class="p">().</span><span class="nx">getTime</span><span class="p">();</span>
     <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="nx">TcpTransport</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">sweep</span> <span class="o">=</span> <span class="kd">function</span> <span class="nx">sweep</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">now</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Date</span><span class="p">().</span><span class="nx">getTime</span><span class="p">();</span>
+    <span class="k">for</span><span class="p">(</span><span class="kd">var</span> <span class="nx">key</span> <span class="k">in</span> <span class="k">this</span><span class="p">.</span><span class="nx">requests</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">requests</span><span class="p">[</span><span class="nx">key</span><span class="p">].</span><span class="nx">timestamp</span> <span class="o">&amp;&amp;</span> <span class="k">this</span><span class="p">.</span><span class="nx">requests</span><span class="p">[</span><span class="nx">key</span><span class="p">].</span><span class="nx">timestamp</span> <span class="o">+</span> <span class="k">this</span><span class="p">.</span><span class="nx">timeout</span> <span class="o">&lt;</span> <span class="nx">now</span><span class="p">)</span> <span class="k">delete</span> <span class="k">this</span><span class="p">.</span><span class="nx">requests</span><span class="p">[</span><span class="nx">key</span><span class="p">];</span>
+    <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="nx">TcpTransport</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">destroy</span> <span class="o">=</span> <span class="kd">function</span> <span class="nx">destroy</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nx">clearInterval</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">sweepInterval</span><span class="p">);</span>
+    <span class="k">if</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">con</span><span class="p">)</span> <span class="k">this</span><span class="p">.</span><span class="nx">con</span><span class="p">.</span><span class="nx">end</span><span class="p">();</span>
 <span class="p">};</span>
 
 <span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">TcpTransport</span><span class="p">;</span>
