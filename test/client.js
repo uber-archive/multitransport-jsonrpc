@@ -68,9 +68,8 @@ exports.failureTcp = function(test) {
         test.ok(!!err, 'error exists');
         test.equal("I have no idea what I'm doing.", err.message, 'The error message was received correctly');
         jsonRpcClient.transport.con.end();
-        server.close(function() {
-            jsonRpcClient.transport.destroy();
-            test.done();
+        jsonRpcClient.shutdown(function() {
+            server.close(test.done.bind(test));
         });
     });
 };

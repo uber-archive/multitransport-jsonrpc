@@ -17,9 +17,8 @@ exports.loopback = function(test) {
     var tcpTransport = new TcpTransport('localhost', 23456);
     tcpTransport.request('foo', function(result) {
         test.equal('foo', result, 'loopback worked correctly');
-        server.close(function() {
-            tcpTransport.destroy();
-            test.done();
+        tcpTransport.shutdown(function() {
+            server.close(test.done.bind(test));
         });
     });
 };
@@ -46,9 +45,8 @@ exports.sweep = function(test) {
     });
     setTimeout(function() {
         test.ok(true, 'this should always run');
-        server.close(function() {
-            tcpTransport.destroy();
-            test.done();
+        tcpTransport.shutdown(function() {
+            server.close(test.done.bind(test));
         });
     }, 1000);
 };
