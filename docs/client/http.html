@@ -34,6 +34,10 @@
     <span class="nx">req</span><span class="p">.</span><span class="nx">end</span><span class="p">();</span>
 <span class="p">};</span>
 
+<span class="nx">HttpTransport</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">shutdown</span> <span class="o">=</span> <span class="kd">function</span> <span class="nx">shutdown</span><span class="p">(</span><span class="nx">done</span><span class="p">)</span> <span class="p">{</span></pre></div>             </td>           </tr>                               <tr id="section-2">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-2">&#182;</a>               </div>               <p>Literally nothing needed for HTTP client
+Just call callback for API consistency</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="nx">done</span><span class="p">();</span>
+<span class="p">};</span>
+
 <span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">HttpTransport</span><span class="p">;</span>
 
 </pre></div>             </td>           </tr>                </tbody>     </table>   </div> </body> </html> 
