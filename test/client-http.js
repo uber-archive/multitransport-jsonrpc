@@ -14,11 +14,12 @@ exports.loopback = function(test) {
             res.end();
         });
     });
-    server.listen(12345);
-    var httpTransport = new HttpTransport('localhost', 12345);
-    httpTransport.request('foo', function(result) {
-        test.equal('foo', result, 'loopback works correctly');
-        server.close();
-        test.done();
+    server.listen(12345, 'localhost', function() {
+        var httpTransport = new HttpTransport('localhost', 12345);
+        httpTransport.request('foo', function(result) {
+            test.equal('foo', result, 'loopback works correctly');
+            server.close();
+            test.done();
+        });
     });
 };
