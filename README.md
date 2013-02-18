@@ -1,4 +1,6 @@
-# Multitransport JSON-RPC Client and Server
+# Multitransport JSON-RPC Client and Server [![Build Status](https://travis-ci.org/dfellis/multitransport-jsonrpc.png?branch=master)](https://travis-ci.org/dfellis/multitransport-jsonrpc)
+
+
 
 ## License (MIT)
 

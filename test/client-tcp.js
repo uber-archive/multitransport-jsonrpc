@@ -50,3 +50,43 @@ exports.sweep = function(test) {
         });
     }, 1000);
 };
+
+exports.glitchedConnection = function(test) {
+    test.expect(3);
+    var serverFunc = function(con) {
+        var buffer = '';
+        con.on('data', function(data) {
+            buffer += data.toString();
+            if(/\0/.test(buffer)) {
+                setTimeout(function() {
+                    con.write(buffer);
+                    buffer = '';
+                }, 400);
+            }
+        });
+    };
+    var server = net.createServer(serverFunc);
+    server.listen(23458);
+    var tcpTransport = new TcpTransport('localhost', 23458, {
+        retries: 1
+    });
+    tcpTransport.request('foo', function(result) {
+        test.equal('foo', result, 'eventually received the response');
+        server.close();
+        tcpTransport.shutdown();
+        test.done();
+    });
+
+    // Kill the original server to simulate an error
+    setTimeout(function() {
+        test.ok(true, 'server was killed');
+        server.close();
+    }, 50);
+
+    // Start a new server to reconnect to
+    setTimeout(function() {
+        test.ok(true, 'new server created to actually handle the request');
+        server = net.createServer(serverFunc);
+        server.listen(23458);
+    }, 100);
+};
