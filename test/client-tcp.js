@@ -53,14 +53,18 @@ exports.sweep = function(test) {
 
 exports.glitchedConnection = function(test) {
     test.expect(3);
-    var serverFunc = function(con) {
+    var con;
+    var serverFunc = function(c) {
+        con = c;
         var buffer = '';
-        con.on('data', function(data) {
+        c.on('data', function(data) {
             buffer += data.toString();
             if(/\0/.test(buffer)) {
                 setTimeout(function() {
-                    con.write(buffer);
-                    buffer = '';
+                    if(con) {
+                        con.write(buffer);
+                        con.end();
+                    }
                 }, 400);
             }
         });
@@ -68,10 +72,10 @@ exports.glitchedConnection = function(test) {
     var server = net.createServer(serverFunc);
     server.listen(23458);
     var tcpTransport = new TcpTransport('localhost', 23458, {
-        retries: 1
+        retries: 5
     });
-    tcpTransport.request('foo', function(result) {
-        test.equal('foo', result, 'eventually received the response');
+    tcpTransport.request({'id': 'foo'}, function(result) {
+        test.equal(JSON.stringify({'id': 'foo'}), JSON.stringify(result), 'eventually received the response');
         server.close();
         tcpTransport.shutdown();
         test.done();
@@ -80,13 +84,15 @@ exports.glitchedConnection = function(test) {
     // Kill the original server to simulate an error
     setTimeout(function() {
         test.ok(true, 'server was killed');
+        con.destroy();
+        con = undefined;
         server.close();
-    }, 50);
+    }, 150);
 
     // Start a new server to reconnect to
     setTimeout(function() {
         test.ok(true, 'new server created to actually handle the request');
         server = net.createServer(serverFunc);
         server.listen(23458);
-    }, 100);
+    }, 200);
 };
