@@ -68,6 +68,9 @@ exports.glitchedConnection = function(test) {
                 }, 400);
             }
         });
+        c.on('end', function() {
+            con = undefined;
+        });
     };
     var server = net.createServer(serverFunc);
     server.listen(23458);
@@ -87,12 +90,12 @@ exports.glitchedConnection = function(test) {
         con.destroy();
         con = undefined;
         server.close();
-    }, 150);
+    }, 50);
 
     // Start a new server to reconnect to
     setTimeout(function() {
         test.ok(true, 'new server created to actually handle the request');
         server = net.createServer(serverFunc);
         server.listen(23458);
-    }, 200);
+    }, 100);
 };
