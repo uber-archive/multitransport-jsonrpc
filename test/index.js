@@ -9,7 +9,7 @@ var ServerTcp = jsonrpc.transports.server.tcp;
 exports.loopbackHttp = function(test) {
     test.expect(1);
     var server = new Server(new ServerHttp(33333), {
-        loopback: function(arg, callback) { callback(arg); }
+        loopback: function(arg, callback) { callback(null, arg); }
     });
     var client = new Client(new ClientHttp('localhost', 33333), {}, function(c) {
         c.loopback('foo', function(err, result) {

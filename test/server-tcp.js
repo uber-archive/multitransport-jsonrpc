@@ -21,7 +21,7 @@ exports.loopback = function(test) {
     });
     con.on('end', function() {
         test.equal(responseData, testJSON + '\0', 'Loopback functioned correctly');
-        tcpTransport.server.close();
+        tcpTransport.shutdown();
         test.done();
     });
 };
@@ -51,7 +51,7 @@ exports.failure = function(test) {
         } catch(e) {
             // Nothing
         }
-        tcpTransport.server.close();
+        tcpTransport.shutdown();
         test.done();
     });
 };
@@ -67,10 +67,10 @@ exports.listening = function(test) {
 
 exports.retry = function(test) {
     test.expect(1);
-    var tcpTransport1 = new TcpTransport(12347, {
+    var tcpTransport1 = new TcpTransport(2468, {
         onListen: function() {
-            var tcpTransport2 = new TcpTransport(12347, {
-                retry: 1,
+            var tcpTransport2 = new TcpTransport(2468, {
+                retries: 1,
                 onListen: function() {
                     test.ok(true, 'second tcpTransport eventually succeeded to start');
                     tcpTransport2.server.close();
@@ -78,7 +78,7 @@ exports.retry = function(test) {
                 }
             });
             setTimeout(function() {
-                tcpTransport1.server.close();
+                tcpTransport1.shutdown();
             }, 50);
         }
     });

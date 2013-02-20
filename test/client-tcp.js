@@ -38,7 +38,7 @@ exports.sweep = function(test) {
         });
     });
     server.listen(23457);
-    var tcpTransport = new TcpTransport('localhost', 23457, { timeout: 200 });
+    var tcpTransport = new TcpTransport('localhost', 23457, { timeout: 100 });
     tcpTransport.request('foo', function(result) {
         console.log(result);
         test.ok(false, 'this should never run');

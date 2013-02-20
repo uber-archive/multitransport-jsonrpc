@@ -8,7 +8,7 @@ exports.loopbackHttp = function(test) {
     test.expect(3);
     var jsonRpcServer = new JSONRPCserver(new HttpTransport(98765), {
         loopback: function(arg1, callback) {
-            callback(arg1);
+            callback(null, arg1);
         }
     });
     var testJSON = JSON.stringify({
