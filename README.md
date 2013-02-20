@@ -33,13 +33,13 @@ var jsonRpcTcpServer = new Server(new ServerTcp(8001), {
 // Either explicitly register the remote methods
 var jsonRcpHttpClient = new Client(new ClientHttp('localhost', 8000));
 jsonRpcHttpClient.register('loopback');
-jsonRpcHttpClient.loopback('foo', function(val) {
+jsonRpcHttpClient.loopback('foo', function(err, val) {
     console.log(val); // Prints 'foo'
 });
 
 // Or wait for the "auto-register" functionality do that for you
 new Client(new ClientTcp('localhost', 8001), {}, function(jsonRpcTcpClient) {
-    jsonRpcTcpClient.loopback('foo', function(val) {
+    jsonRpcTcpClient.loopback('foo', function(err, val) {
         console.log(val); // Prints 'foo'
     });
 });
