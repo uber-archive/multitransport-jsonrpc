@@ -1,8 +1,19 @@
-# Multitransport JSON-RPC Client and Server [![Build Status](https://travis-ci.org/dfellis/multitransport-jsonrpc.png?branch=master)](https://travis-ci.org/dfellis/multitransport-jsonrpc)
+# Multitransport JSON-RPC Client and Server [![Build Status](https://travis-ci.org/uber/multitransport-jsonrpc.png?branch=master)](https://travis-ci.org/uber/multitransport-jsonrpc)
 
 *multitransport-jsonrpc* provides a JSON-RPC solution for both the traditional HTTP scenario as well as for persistent, raw TCP connections. It's designed as a collection of constructor functions where both the client and server are split into two components: a single outer object in charge of the JSON-RPC protocol and providing the API for your code to interact with, and multiple sets of inner transport objects that deal with the particular data transport layer you want to use and how precisely to configure it.
 
 This pluggable architecture means you can continue to use an RPC-type pattern even in use-cases where JSON-RPC has not traditionally been a great fit. The HTTP transport provides compatibility with traditional JSON-RPC clients and servers, while the TCP transport trims the fat of the HTTP header and amortizes the TCP handshake overhead, improving transport performance for large numbers of small messages. A theoretical ZeroMQ or SMTP transport could allow totally asynchronous clients and servers, where neither the client nor server need to be running all the time for communication to still successfully take place.
+
+## Why TCP?
+
+It's not an official JSON-RPC standard, so why not just use HTTP for everything? The answer is simple: ridiculous performance gains when you don't need to do a TCP handshake or account for the HTTP header overhead on each request and response. Here's the results of a perf test on my local machine:
+
+```
+TCP took 726ms, 13774.104683195592 reqs/sec
+HTTP took 17924ms, 557.911180540058 reqs/sec
+```
+
+The TCP transport is nearly 25x faster for small messages than for large.
 
 ## Install
 
@@ -75,6 +86,12 @@ new Client(new ClientTcp('localhost', 8001), {}, function(jsonRpcTcpClient) {
 
 ``config`` - The configuration settings for the client HTTP transport, which at the moment is only the ``path``, which defaults to ``/``.
 
+The various transports also provide events you can listen on, using the [Node.js EventEmitter](http://nodejs.org/api/events.html) so the semantics should be familiar. The Client HTTP Transport provides:
+
+``message`` - This event is fired any time a message (response) is returned, and provides the registered callback with the JSON-RPC object received.
+
+``shutdown`` - This event is fired when the transport is shut down, and provides no arguments to the callback handlers.
+
 #### jsonrpc.transports.client.tcp
 
 ``new jsonrpc.transports.client.tcp(server, port, config)``
@@ -91,6 +108,18 @@ new Client(new ClientTcp('localhost', 8001), {}, function(jsonRpcTcpClient) {
 
 ``retryInterval`` - The time, in ms, that the client will wait before reconnect attempts (default: 250ms)
 
+The Client TCP Transport events are:
+
+``message`` - This event is fired whenever a complete message is received, and the registered callbacks receive the JSON-RPC object as their only argument.
+
+``retry`` - This event is fired whenever the transport attempts to reconnect to the server. There are no arguments provided to the callback.
+
+``end`` - This event is fired when the TCP connection is ended. If reconnection retries are enabled, it is only fired when the transport fails to reconnect.
+
+``sweep`` - This event is fired when the transport clears out old requests that went past the expiration time. The callbacks receive an array of failed requests (if any) as the only argument.
+
+``shutdown`` - This event is fired when the transport is shutdown.
+
 #### jsonrpc.transports.server.http
 
 ``new jsonrpc.transports.server.http(port, config)``
@@ -98,6 +127,14 @@ new Client(new ClientTcp('localhost', 8001), {}, function(jsonRpcTcpClient) {
 ``port`` - The port the server should use.
 
 ``config`` - The configuration settings. For the server HTTP transport, only ``acao`` exists. It is the value that should be returned to clients in the ``Access-Control-Allow-Origin`` header, and defaults to ``*``.
+
+The Server HTTP Transport events are:
+
+``message`` - This event is fired whenever a complete message is received, and the registered callbacks receive the JSON-RPC object as their only argument.
+
+``listening`` - This event is fired whenever the HTTP server is open and listening for connections.
+
+``shutdown`` - This event is fired when the transport is shutdown.
 
 #### jsonrpc.transports.server.tcp
 
@@ -107,11 +144,25 @@ new Client(new ClientTcp('localhost', 8001), {}, function(jsonRpcTcpClient) {
 
 ``config`` - The configuration settings. For the server TCP transport, these are:
 
-``onListen`` - A callback function to be called when the TCP transport is listening for requests.
-
 ``retries`` - The number of times the server will attempt to listen to the TCP port specified. (Useful during fast restarts where the new node app is starting while the old node app is being shut down.)
 
 ``retryInterval`` - The time, in ms, that the server will wait between attempts to grab the TCP port.
+
+The Server TCP Transport events are:
+
+``connection`` - This event is fired whenever a new connection is made to the TCP server. The callbacks receive a reference to the connection object as their only argument.
+
+``message`` - This event is fired whenever a JSON-RPC message is received. The callbacks receive the JSON-RPC object as their only argument.
+
+``closedConnection`` - This event is fired whenever an open connection to a client is closed. The callbacks receive a reference to the connection object as their only argument.
+
+``listening`` - This event is fired whenever the TCP server is open and listening for connections.
+
+``retry`` - This event is fired whenever the TCP server cannot open the port to listen for connections and is retrying to connect.
+
+``error`` - This event is fired whenever an unhandled error in the TCP server occurs. If configured, the server will attempt to solve listen errors. The callbacks receive the error object as their only argument.
+
+``shutdown`` - This event is fired when the server is shutdown.
 
 ## Defining JSON-RPC Server Methods
 

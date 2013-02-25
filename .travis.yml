@@ -6,6 +6,6 @@ node_js:
 notifications:
     email:
         recipients:
-            - d.f.ellis@ieee.org
+            - dispatch@uber.com
         on_success: change
         on_failure: change

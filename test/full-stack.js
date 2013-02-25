@@ -35,3 +35,52 @@ exports.failureTcp = function(test) {
         });
     });
 };
+
+exports.perf = function(test) {
+    test.expect(2);
+    var numMessages = 10000
+    var tcpServer = new Server(new ServerTcp(9001), {
+        loopback: function(arg, callback) { callback(null, arg); }
+    });
+    var httpServer = new Server(new ServerHttp(9002), {
+        loopback: function(arg, callback) { callback(null, arg); }
+    });
+    var tcpClient = new Client(new ClientTcp('localhost', 9001));
+    tcpClient.register('loopback');
+    var tcpCount = 0, tcpStart = new Date().getTime(), tcpEnd;
+    for(var i = 0; i < numMessages; i++) {
+        tcpClient.loopback(i, function() {
+            tcpCount++;
+            if(tcpCount === numMessages) {
+                test.ok(true, 'tcp finished');
+                tcpEnd = new Date().getTime();
+                var tcpTime = tcpEnd - tcpStart;
+                var tcpRate = numMessages * 1000 / tcpTime;
+                console.log("TCP took " + tcpTime + "ms, " + tcpRate + " reqs/sec");
+                next();
+            }
+        });
+    }
+    function next() {
+        var httpClient = new Client(new ClientHttp('localhost', 9002));
+        httpClient.register('loopback');
+        var httpCount = 0, httpStart = new Date().getTime(), httpEnd;
+        for(var i = 0; i < numMessages; i++) {
+            httpClient.loopback(i, function() {
+                httpCount++;
+                if(httpCount === numMessages) {
+                    test.ok(true, 'http finished');
+                    httpEnd = new Date().getTime();
+                    var httpTime = httpEnd - httpStart;
+                    var httpRate = numMessages * 1000 / httpTime;
+                    console.log("HTTP took " + httpTime + "ms, " + httpRate + " reqs/sec");
+                    tcpClient.shutdown();
+                    httpClient.shutdown();
+                    tcpServer.shutdown();
+                    httpServer.shutdown();
+                    test.done();
+                }
+            });
+        }
+    }
+};
