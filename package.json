@@ -1,11 +1,12 @@
 {
 	"contributors": [
-		{"name": "David Ellis", "email": "d.f.ellis@ieee.org"},
-		{"name": "Alain Rodriguez", "email": "eagle5command@gmail.com"}
+		"David Ellis <d.f.ellis@ieee.org>",
+		"Alain Rodriguez <eagle5command@gmail.com>",
+        "Amos Barreto <amos.barreto@gmail.com>"
 	],
 	"name": "multitransport-jsonrpc",
-	"version": "0.2.10",
-	"description": "",
+	"version": "0.3.0",
+	"description": "JSON-RPC where performance matters",
 	"main": "lib/index.js",
     "dependencies": {
         "queue-flow": "*",

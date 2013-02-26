@@ -219,7 +219,7 @@ It is also expected to make use of a ``handler`` method that the server attaches
 
 ## License (MIT)
 
-Portions Copyright (C) 2013 by David Ellis
+Portions Copyright (C) 2013 by Uber Technologies, Inc, David Ellis
 
 Portions Copyright (C) 2011 by Agrosica, Inc, David Ellis, Alain Rodriguez, Hector Lugo
 
