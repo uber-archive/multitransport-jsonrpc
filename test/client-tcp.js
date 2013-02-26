@@ -24,7 +24,7 @@ exports.loopback = function(test) {
 };
 
 exports.sweep = function(test) {
-    test.expect(1);
+    test.expect(2);
     var server = net.createServer(function(con) {
         var buffer = '';
         con.on('data', function(data) {
@@ -39,9 +39,9 @@ exports.sweep = function(test) {
     });
     server.listen(23457);
     var tcpTransport = new TcpTransport('localhost', 23457, { timeout: 100 });
-    tcpTransport.request('foo', function(result) {
-        console.log(result);
-        test.ok(false, 'this should never run');
+    tcpTransport.request('foo', function(err, result) {
+        test.ok(!!err, 'should receive a timeout error');
+        if(result) test.ok(false, 'this should never run');
     });
     setTimeout(function() {
         test.ok(true, 'this should always run');
@@ -79,9 +79,9 @@ exports.glitchedConnection = function(test) {
     });
     tcpTransport.request({'id': 'foo'}, function(result) {
         test.equal(JSON.stringify({'id': 'foo'}), JSON.stringify(result), 'eventually received the response');
-        server.close();
-        tcpTransport.shutdown();
-        test.done();
+        tcpTransport.shutdown(function() {
+            server.close(test.done.bind(test));
+        });
     });
 
     // Kill the original server to simulate an error

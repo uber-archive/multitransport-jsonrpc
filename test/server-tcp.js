@@ -58,28 +58,26 @@ exports.failure = function(test) {
 
 exports.listening = function(test) {
     test.expect(1);
-    var tcpTransport = new TcpTransport(12346, { onListen: function() {
+    var tcpTransport = new TcpTransport(12346);
+    tcpTransport.on('listening', function() {
         test.ok(true, 'listening callback fired');
         tcpTransport.server.close();
         test.done();
-    } });
+    });
 };
 
 exports.retry = function(test) {
     test.expect(1);
-    var tcpTransport1 = new TcpTransport(2468, {
-        onListen: function() {
-            var tcpTransport2 = new TcpTransport(2468, {
-                retries: 1,
-                onListen: function() {
-                    test.ok(true, 'second tcpTransport eventually succeeded to start');
-                    tcpTransport2.server.close();
-                    test.done();
-                }
-            });
-            setTimeout(function() {
-                tcpTransport1.shutdown();
-            }, 50);
-        }
+    var tcpTransport1 = new TcpTransport(2468);
+    tcpTransport1.on('listening', function() {
+        var tcpTransport2 = new TcpTransport(2468, { retries: 1 });
+        tcpTransport2.on('listening', function() {
+            test.ok(true, 'second tcpTransport eventually succeeded to start');
+            tcpTransport2.server.close();
+            test.done();
+        });
+        setTimeout(function() {
+            tcpTransport1.shutdown();
+        }, 50);
     });
 };
