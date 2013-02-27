@@ -1,0 +1,154 @@
+--
+layout: site
+title: multitransport-jsonrpc
+sections:
+    -
+        id: foo
+        name: Foo
+---
+<h2>Easy-to-follow data processing with queues, flowcharts, and functional programming</h2>
+
+<p>Tired of this?</p>
+
+{% highlight js %}
+stuck(arg, function(err, result) {
+    if(err) return console.log(err);
+    In(result, function(err, result) {
+        if(err) return console.log(err);
+        callback(result, function(err, result) {
+            if(err) return console.log(err);
+            hell(result);
+        });
+    });
+});
+{% endhighlight %}
+
+<p>("stuck in callback hell")</p>
+
+<p>What if you could write it like this?</p>
+
+{% highlight js %}
+q([arg])
+    .node(notStuck, 'error')
+    .node(In, 'error')
+    .node(callback, 'error')
+    .each(hell);
+q('error')
+    .each(console.log);
+{% endhighlight %}
+
+<p>Tired of this?</p>
+
+{% highlight js %}
+async.waterfall([
+    dealing.bind(this, arg),
+    function With(result, callback) {
+        if(result.foo == 'branch1') {
+            async.waterfall([
+                nested.bind(this, result),
+                branches
+            ], callback);
+        } else {
+            async.waterfall([
+                making.bind(this, result),
+                code,
+                difficult
+            ], callback);
+        }
+    },
+    to.bind(this, 'const1', 'const2')
+], function(err, result) {
+    if(err) return console.log(err);
+    follow(result);
+});
+{% endhighlight %}
+
+<p>("dealing with nested branches making code difficult to follow")</p>
+
+<p>What if you could write it like this?</p>
+
+{% highlight js %}
+q([arg])
+    .node(dealing, 'error')
+    .branch(function With(result) {
+        return result.foo == 'branch1' ? 'branch1' : 'branch2';
+    });
+q('branch1')
+    .node(nested, 'error')
+    .node(branches, 'error')
+    .branch('branchesRejoined');
+q('branch2')
+    .node(making, 'error')
+    .node(code, 'error')
+    .node(easy, 'error')
+    .branch('branchesRejoined');
+q('branchesRejoined')
+    .node(to.bind(this, 'const1', 'const2'), 'error');
+    .each(follow);
+q('error')
+    .each(console.log);
+{% endhighlight %}
+
+<p>Tired of this?</p>
+
+{% highlight js %}
+someRemoteCall('arg', function recursing(err, result) {
+    if(err) return console.log(err);
+    if(result == 'good') {
+        doSomethingElse();
+    } else {
+        someRemoteCall(result, recursing);
+        // Arg! Stack Overflow!?
+        // But I can't unroll this recursion because it's an async function, right?
+    }
+});
+{% endhighlight %}
+
+<p>How about this?</p>
+
+{% highlight js %}
+q('recursiveCall')
+    .node(someRemoteCall, 'error')
+    .branch(function(result) {
+        return result == 'good' ? 'doSomethingElse' : 'recursiveCall';
+    }); // Cannot blow the stack!
+q('error')
+    .each(console.log);
+q('doSomethingElse')
+    ...
+{% endhighlight %}
+
+<p><code>queue-flow</code> makes async and sync data processing code easy to read like <code>Fibers</code> (it doesn't look like fibers code, but it is easy to follow like it) while not altering the Javascript language itself like <code>async</code>, giving you the best of both worlds, along with some other advantages:
+
+<ul>
+    <li>queues in queue-flow are simply temporary storage for the consuming method "verb" you use. These "verbs" create new, anonymous queues so they can be chained together easily for a terse, easy-to-understand syntax.</li>
+    <li>Because there are anonymous queues in between, as one "verb" completes its task on one item to process, it can pass that along to the next "verb" in the chain to process while it starts to tackle the next item. If most of your "verbs" are dealing with I/O (database, file system, network connection, etc), then you very quickly will keep all of the other processes in your "pipeline" saturated, while still guaranteeing First-In-First-Out.</li>
+    <li>Don't want that guarantee that the first request in is the first response out (such as for serving web pages?) <code>queue-flow</code> allows its constructor function to be overridden, and <a href="https://github.com/dfellis/sloppy-queue-flow">sloppy-queue-flow</a> breaks queue order, turning your queue into essentially a task list of operations to perform on independent data.</li>
+    <li>Named queues and <code>branch</code> allow you to turn your queues into a flowchart of actions to perform, allowing you to organize your async tasks in easy-to-understand chunks just as functions organize imperative code into easy-to-reuse chunks, and all imperative constructs (<code>if, while, for</code>) can be replicated with <code>branch</code>.</li>
+</ul>
+
+<p>Still not convinced? <a href="/queue-flow/2012/09/22/why-queue-flow/">Check out more examples on why <code>queue-flow</code> is better than <code>async</code></a>.</p>
+
+<p>Want to learn more? <a href="/queue-flow/2012/09/21/tutorial/">Check out the tutorial for <code>queue-flow</code></a> with neat figures explaining the behavior of <code>queue-flow</code> and its many method verbs. After that, you can <a href="/queue-flow/docs/queue-flow.html">read the annotated source code, yourself,</a> which is updated right when new releases of <code>queue-flow</code> are published (see the nifty <a href="https://github.com/dfellis/queue-flow/blob/master/prepublish.sh">prepublish script</a>). (If you're just looking for an API reference, just read the left-hand column and ignore the source code on the right.)</p>
+
+<h2>License (MIT)</h2>
+
+<p>Copyright (C) 2012 by David Ellis</p>
+
+<p>Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:</p>
+
+<p>The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.</p>
+
+<p>THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.</p>

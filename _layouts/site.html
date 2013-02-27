@@ -1,0 +1,52 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="chrome=1">
+        <title>{{page.title}}</title>
+        
+        <link rel="stylesheet" href="/multitransport-jsonrpc/stylesheets/styles.css">
+        <link rel="stylesheet" href="/multitransport-jsonrpc/stylesheets/pygment_trac.css">
+        <script>
+            window.onload = function() {
+                document.getElementById('menubutton').onclick = function() {
+                    document.getElementById('menu').classList.toggle('selected');
+                };
+            };
+        </script>
+        
+        <!--[if lt IE 9]>
+        <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+    </head>
+    <body>
+        <div id="menu">
+            <ol>
+                <li><a href="/multitransport-jsonrpc/">Home</a></li>
+                {% for post in site.posts %}
+                <li><a href="/multitransport-jsonrpc{{ post.url }}">{{ post.title }}</a></li>
+                {% endfor %}
+                <li><a href="/multitransport-jsonrpc/docs/index.html">Source Documentation</a></li>
+            </ol>
+        </div>
+        <div id="uberbar">
+            <a href="http://uber.com" id="uberlogo"><img src="/multitransport-jsonrpc/images/uberlogo.png" alt="Uber Logo"></a>
+            <a href="#" id="menubutton"><img src="/multitransport-jsonrpc/images/navmenu.png" alt="Navigation Menu Button"></a>
+        </div>
+        <header id="titlebar">
+            <h1>{{ page.title }}</h1>
+            <a href="https://github.com/uber/multitransport-jsonrpc"><img src="/multitransport-jsonrpc/images/github.png" alt="GitHub Project Link"></a>
+        </header>
+        <section id="content">
+            {{content}}
+        </section>
+        <footer id="sectionbar">
+            <ol>
+                {% for section in page.sections %}
+                <li><a href="#{{section.id}}">{{section.name}}</a></li>
+                {% endfor %}
+            </ol>
+            <span>Copyright 2013 Uber Technologies, Inc</span>
+        </footer>
+    </body>
+</html>
