@@ -20,8 +20,8 @@ body {
     background-color: #E4E3E4;
     -webkit-border-radius: 8px 8px 0px 0px;
     -moz-border-radius: 8px 8px 0px 0px;
-    -ms-border-radius: 2px 2px 0px 0px;
-    -o-border-radius: 2px 2px 0px 0px;
+    -ms-border-radius: 8px 8px 0px 0px;
+    -o-border-radius: 8px 8px 0px 0px;
     border-radius: 8px 8px 0px 0px;
     z-index: 5;
 }
@@ -34,6 +34,7 @@ body {
 #uberbar > #menubutton {
     float: right;
     padding: 8px;
+    cursor: pointer;
 }
 
 #titlebar {
@@ -117,6 +118,11 @@ body {
     color: #222222;
 }
 
+#menu > ol > li > a {
+    width: 100%;
+    height: 100%;
+}
+
 #sectionbar {
     position: fixed;
     left: 0px;
@@ -125,15 +131,19 @@ body {
     height: 128px;
     padding: 8px;
     background-color: #ffffff;
+    box-shadow: 0px -2px 4px #cccccc;
     text-transform: uppercase;
 }
 
 #sectionbar > ol {
     list-style: none;
+    width: 100%;
 }
 
 #sectionbar > ol > li {
     display: inline;
+    float: left;
+    width: auto;
     margin: auto;
     color: #000000;
     -moz-transition: color 0.25s;
@@ -175,13 +185,18 @@ strong {
 
 h1, h2, h3, h4, h5, h6 {
   color: #222;
-  padding: 0;
+  padding: 0 20px;
   margin: 0 0 20px;
   line-height: 1.2;
 }
 
 p, ul, ol, table, pre, dl {
+    padding: 0 20px;
   margin: 0 0 20px;
+}
+
+p {
+    margin: 10px 0 20px;
 }
 
 h1, h2, h3 {
@@ -228,7 +243,6 @@ pre {
   padding: 20px;
   background: #3A3C42;
   color: #f8f8f2;
-  margin: 0 -20px 20px;
 }
 pre code {
   color: #f8f8f2;
