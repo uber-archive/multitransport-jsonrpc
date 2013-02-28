@@ -73,6 +73,9 @@ body {
     width: 100%;
     height: 50%;
     background-color: #222222;
+    background-image: url('../images/ulogo.png');
+    background-repeat: no-repeat;
+    background-position: center bottom;
     color: #eeeeee;
     -moz-transition: top 0.5s ease-in;
     -webkit-transition: top 0.5s ease-in;
@@ -99,30 +102,38 @@ body {
 
 #menu > ol > li {
     display: block;
-    padding: 16px;
     width: 100%;
     border-top: 1px solid black;
     border-bottom: 1px solid black;
     background-color: #222222;
-    color: #eeeeee;
-    -moz-transition: background-color 0.25s, color 0.25s;
-    -webkit-transition: background-color 0.25s, color 0.25s;
-    -o-transition: background-color 0.25s, color 0.25s;
-    -ms-transition: background-color 0.25s, color 0.25s;
-    transition: background-color 0.25s, color 0.25s;
+    -moz-transition: background-color 0.25s;
+    -webkit-transition: background-color 0.25s;
+    -o-transition: background-color 0.25s;
+    -ms-transition: background-color 0.25s;
+    transition: background-color 0.25s;
 }
 
 #menu > ol > li:hover {
     background-color: #eeeeee;
+}
+
+#menu > ol > li:hover > a {
     color: #222222;
 }
 
 #menu > ol > li > a {
-    width: 100%;
-    height: 100%;
+    display: block;
+    padding: 16px;
+    color: #eeeeee;
+    -moz-transition: color 0.25s;
+    -webkit-transition: color 0.25s;
+    -o-transition: color 0.25s;
+    -ms-transition: color 0.25s;
+    transition: color 0.25s;
 }
 
 #sectionbar {
+    display: table;
     position: fixed;
     left: 0px;
     bottom: 0px;
@@ -135,11 +146,13 @@ body {
 }
 
 #sectionbar > ol {
+    display: table-row;
     list-style: none;
     width: 100%;
 }
 
 #sectionbar > ol > li {
+    display: table-cell;
     float: left;
     width: auto;
     margin: auto;
