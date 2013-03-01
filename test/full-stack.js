@@ -41,20 +41,23 @@ String.prototype.repeat = function( num )
         return new Array( num + 1 ).join( this );
 }
 
-function perf(testString, test) {
+function perf(testString, tcpParallelism, test) {
     test.expect(2);
-    var numMessages = 10000
+    var numMessages = 10000;
     var tcpServer = new Server(new ServerTcp(9001), {
         loopback: function(arg, callback) { callback(null, arg); }
     });
     var httpServer = new Server(new ServerHttp(9002), {
         loopback: function(arg, callback) { callback(null, arg); }
     });
-    var tcpClient = new Client(new ClientTcp('localhost', 9001));
-    tcpClient.register('loopback');
+    var tcpClients = [];
+    for(var i = 0; i < tcpParallelism; i++) {
+        tcpClients[i] = new Client(new ClientTcp('localhost', 9001));
+        tcpClients[i].register('loopback');
+    }
     var tcpCount = 0, tcpStart = new Date().getTime(), tcpEnd;
     for(var i = 0; i < numMessages; i++) {
-        tcpClient.loopback(testString || i, function() {
+        tcpClients[i % tcpParallelism].loopback(testString || i, function() {
             tcpCount++;
             if(tcpCount === numMessages) {
                 test.ok(true, 'tcp finished');
@@ -79,7 +82,7 @@ function perf(testString, test) {
                     var httpTime = httpEnd - httpStart;
                     var httpRate = numMessages * 1000 / httpTime;
                     console.log("HTTP took " + httpTime + "ms, " + httpRate + " reqs/sec");
-                    tcpClient.shutdown();
+                    tcpClients.forEach(function(tcpClient) { tcpClient.shutdown(); });
                     httpClient.shutdown();
                     tcpServer.shutdown();
                     httpServer.shutdown();
@@ -90,8 +93,10 @@ function perf(testString, test) {
     }
 };
 
-exports.perf_simple = perf.bind(null, null);
-exports.perf_100 = perf.bind(null, 'a'.repeat(100));
-exports.perf_1000 = perf.bind(null, 'a'.repeat(1000));
-exports.perf_10000 = perf.bind(null, 'a'.repeat(10000));
-exports.perf_100000 = perf.bind(null, 'a'.repeat(100000));
+exports.perf_simple = perf.bind(null, null, 1);
+exports.perf_100 = perf.bind(null, 'a'.repeat(100), 1);
+exports.perf_1000 = perf.bind(null, 'a'.repeat(1000), 1);
+exports.perf_10000 = perf.bind(null, 'a'.repeat(10000), 1);
+exports.perf_100000 = perf.bind(null, 'a'.repeat(100000), 1);
+exports.perf_100000_10 = perf.bind(null, 'a'.repeat(100000), 10);
+exports.perf_100000_100 = perf.bind(null, 'a'.repeat(100000), 100);
