@@ -36,7 +36,12 @@ exports.failureTcp = function(test) {
     });
 };
 
-exports.perf = function(test) {
+String.prototype.repeat = function( num )
+{
+        return new Array( num + 1 ).join( this );
+}
+
+function perf(testString, test) {
     test.expect(2);
     var numMessages = 10000
     var tcpServer = new Server(new ServerTcp(9001), {
@@ -49,7 +54,7 @@ exports.perf = function(test) {
     tcpClient.register('loopback');
     var tcpCount = 0, tcpStart = new Date().getTime(), tcpEnd;
     for(var i = 0; i < numMessages; i++) {
-        tcpClient.loopback(i, function() {
+        tcpClient.loopback(testString || i, function() {
             tcpCount++;
             if(tcpCount === numMessages) {
                 test.ok(true, 'tcp finished');
@@ -84,3 +89,9 @@ exports.perf = function(test) {
         }
     }
 };
+
+exports.perf_simple = perf.bind(null, null);
+exports.perf_100 = perf.bind(null, 'a'.repeat(100));
+exports.perf_1000 = perf.bind(null, 'a'.repeat(1000));
+exports.perf_10000 = perf.bind(null, 'a'.repeat(10000));
+exports.perf_100000 = perf.bind(null, 'a'.repeat(100000));
