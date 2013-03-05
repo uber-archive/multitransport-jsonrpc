@@ -1,4 +1,5 @@
 var TcpTransport = require('../lib/transports/client/tcp');
+var shared = require('../lib/transports/shared/tcp');
 var net = require('net');
 
 exports.loopback = function(test) {
@@ -7,7 +8,7 @@ exports.loopback = function(test) {
         var buffer = '';
         con.on('data', function(data) {
             buffer += data.toString();
-            if(/\0/.test(buffer)) {
+            if(shared.containsCompleteMessage(buffer)) {
                 con.write(buffer);
                 con.end();
             }
@@ -29,7 +30,7 @@ exports.sweep = function(test) {
         var buffer = '';
         con.on('data', function(data) {
             buffer += data.toString();
-            if(/\0/.test(buffer)) {
+            if(shared.containsCompleteMessage(buffer)) {
                 setTimeout(function() {
                     con.write(buffer);
                     con.end();
@@ -59,7 +60,7 @@ exports.glitchedConnection = function(test) {
         var buffer = '';
         c.on('data', function(data) {
             buffer += data.toString();
-            if(/\0/.test(buffer)) {
+            if(shared.containsCompleteMessage(buffer)) {
                 setTimeout(function() {
                     if(con) {
                         con.write(buffer);

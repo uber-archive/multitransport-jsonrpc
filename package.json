@@ -10,7 +10,8 @@
 	"main": "lib/index.js",
     "dependencies": {
         "queue-flow": "*",
-        "lambda-js": "*"
+        "lambda-js": "*",
+        "buffertools": "*"
     },
     "devDependencies": {
         "nodeunit": "*",
