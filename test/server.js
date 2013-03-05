@@ -1,5 +1,6 @@
 var HttpTransport = require('../lib/transports/server/http');
 var TcpTransport = require('../lib/transports/server/tcp');
+var shared = require('../lib/transports/shared/tcp');
 var JSONRPCserver = require('../lib/server');
 var http = require('http');
 var net = require('net');
@@ -52,26 +53,25 @@ exports.failureTcp = function(test) {
             callback(new Error("I have no idea what I'm doing"));
         }
     });
-    var testJSON = JSON.stringify({
-        id: 1,
-        method: 'failure',
-        params: [{ hello: 'world' }]
-    });
     var con = net.connect({
         port: 99863,
         host: 'localhost'
     }, function() {
-        con.write(testJSON + '\0');
+        con.write(shared.formatMessage({
+            id: 1,
+            method: 'failure',
+            params: [{ hello: 'world' }]
+        }));
     });
-    var responseData = '';
+    var buffer = new Buffer('');
     con.on('data', function(data) {
-        responseData += data.toString();
-        if(/\0/.test(responseData)) con.end();
+        buffer = buffer.concat(data);
+        if(shared.containsCompleteMessage(buffer.toString())) con.end();
     });
     con.on('end', function() {
         try {
-            var obj = JSON.parse(responseData.substring(0, responseData.length-1));
-            test.equal(obj.error.message, "I have no idea what I'm doing", 'Returns the error as an error');
+            var res = shared.parseBuffer(buffer);
+            test.equal(res[1].error.message, "I have no idea what I'm doing", 'Returns the error as an error');
         } catch(e) {
             // Do nothing
         }
