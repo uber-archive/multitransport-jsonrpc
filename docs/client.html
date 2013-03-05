@@ -51,11 +51,10 @@ remote method.</p>             </td>             <td class="code">              
             <span class="p">}</span>
         <span class="p">}</span>
   <span class="p">});</span>
-<span class="p">};</span>
-  </pre></div>             </td>           </tr>                               <tr id="section-8">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-8">&#182;</a>               </div>               <h3>The <em>register</em> function</h3>
+<span class="p">};</span></pre></div>             </td>           </tr>                               <tr id="section-8">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-8">&#182;</a>               </div>               <h3>The <em>register</em> function</h3>
 
 <p>is a simple blocking function that takes a method name or array of
-method names and directly modifies the </p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nx">JSONRPC</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">register</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">methods</span><span class="p">)</span> <span class="p">{</span>
+method names and directly modifies the</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nx">JSONRPC</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">register</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">methods</span><span class="p">)</span> <span class="p">{</span>
     <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="nx">methods</span> <span class="k">instanceof</span> <span class="nb">Array</span><span class="p">))</span> <span class="p">{</span>
         <span class="nx">methods</span> <span class="o">=</span> <span class="p">[</span><span class="nx">methods</span><span class="p">];</span>
     <span class="p">}</span>
