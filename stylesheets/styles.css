@@ -257,6 +257,10 @@ body {
     right: 0px;
 }
 
+.initiallyHidden {
+    opacity: 0;
+}
+
 header, section, footer {
   display: block;
 }
