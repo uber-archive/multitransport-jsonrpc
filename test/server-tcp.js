@@ -57,6 +57,68 @@ exports.failure = function(test) {
     });
 };
 
+exports.corrupt1 = function(test) {
+    test.expect(3);
+    var tcpTransport = new TcpTransport(12345);
+    tcpTransport.handler = function(jsonObj, callback) {
+        test.equal(jsonObj, '{"hello":"world"}');
+        callback(jsonObj);
+    };
+    tcpTransport.on('error', function (e) {
+        test.ifError(!e);
+    });
+    var testJSON = JSON.stringify({ hello: 'world' });
+    var con = net.connect({ port: 12345, host: 'localhost' }, function() {
+        con.write('asdf\0' + shared.formatMessage(testJSON));
+    });
+    var buffer = new Buffer('');
+    con.on('data', function(data) {
+        buffer = buffer.concat(data);
+        if(shared.containsCompleteMessage(buffer.toString())) con.end();
+    });
+    con.on('end', function() {
+        try {
+            var result = shared.parseBuffer(buffer);
+            test.equal(JSON.parse(result[1]).hello, "world", 'response returned correctly');
+        } catch(e) {
+            // Nothing
+        }
+        tcpTransport.shutdown();
+        test.done();
+    });
+};
+
+exports.corrupt2 = function(test) {
+    test.expect(3);
+    var tcpTransport = new TcpTransport(12345);
+    tcpTransport.handler = function(jsonObj, callback) {
+        test.equal(jsonObj, '{"hello":"world"}');
+        callback(jsonObj);
+    };
+    tcpTransport.on('error', function (e) {
+        test.ifError(!e);
+    });
+    var testJSON = JSON.stringify({ hello: 'world' });
+    var con = net.connect({ port: 12345, host: 'localhost' }, function() {
+        con.write('10\0' + shared.formatMessage(testJSON));
+    });
+    var buffer = new Buffer('');
+    con.on('data', function(data) {
+        buffer = buffer.concat(data);
+        if(shared.containsCompleteMessage(buffer.toString())) con.end();
+    });
+    con.on('end', function() {
+        try {
+            var result = shared.parseBuffer(buffer);
+            test.equal(JSON.parse(result[1]).hello, "world", 'response returned correctly');
+        } catch(e) {
+            // Nothing
+        }
+        tcpTransport.shutdown();
+        test.done();
+    });
+};
+
 exports.listening = function(test) {
     test.expect(1);
     var tcpTransport = new TcpTransport(12346);
