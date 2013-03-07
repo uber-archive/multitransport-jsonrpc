@@ -63,14 +63,16 @@ exports.failureTcp = function(test) {
             params: [{ hello: 'world' }]
         }));
     });
-    var buffer = new Buffer('');
+    var buffers = [], bufferLen = 0, messageLen = 0;
     con.on('data', function(data) {
-        buffer = buffer.concat(data);
-        if(shared.containsCompleteMessage(buffer.toString())) con.end();
+        buffers.push(data);
+        bufferLen += data.length;
+        if(messageLen === 0) messageLen = shared.getMessageLen(buffers);
+        if(bufferLen === messageLen + 4) con.end();
     });
     con.on('end', function() {
         try {
-            var res = shared.parseBuffer(buffer);
+            var res = shared.parseBuffer(buffers, messageLen);
             test.equal(res[1].error.message, "I have no idea what I'm doing", 'Returns the error as an error');
         } catch(e) {
             // Do nothing

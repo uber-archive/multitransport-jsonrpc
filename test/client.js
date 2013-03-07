@@ -40,17 +40,29 @@ exports.loopbackHttp = function(test) {
 exports.failureTcp = function(test) {
     test.expect(2);
     var server = net.createServer(function(con) {
-        var buffer = new Buffer('');
+        var buffers = [];
+        var bufferLen = 0;
+        var messageLen = 0;
         con.on('data', function(data) {
-            buffer = buffer.concat(data);
+            buffers.push(data);
+            bufferLen += data.length;
+            if(messageLen === 0) messageLen = shared.getMessageLen(buffers);
             var res, obj;
-            while ((res = shared.parseBuffer(buffer))) {
-                buffer = res[0];
-                obj = res[1];
-                con.write(shared.formatMessage({
-                    id: obj && obj.id,
-                    error: "I have no idea what I'm doing."
-                }));
+            if(bufferLen - 4 >= messageLen) {
+                while (messageLen && bufferLen - 4 >= messageLen && (res = shared.parseBuffer(buffers, messageLen))) {
+                    buffers = res[0];
+                    obj = res[1];
+                    con.write(shared.formatMessage({
+                        id: obj && obj.id,
+                        error: "I have no idea what I'm doing."
+                    }));
+                    bufferLen = buffers.map(function(buffer) {
+                        return buffer.length;
+                    }).reduce(function(fullLen, currLen) {
+                        return fullLen + currLen;
+                    }, 0);
+                    messageLen = shared.getMessageLen(buffers);
+                }
             }
         });
     });

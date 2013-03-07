@@ -43,7 +43,7 @@ String.prototype.repeat = function( num )
 
 function perf(testString, test) {
     test.expect(2);
-    var numMessages = 10000
+    var numMessages = 1000;
     var tcpServer = new Server(new ServerTcp(9001), {
         loopback: function(arg, callback) { callback(null, arg); }
     });
