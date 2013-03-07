@@ -1,0 +1,253 @@
+<!DOCTYPE html><html><head><title>README</title><meta http-equiv="Content-Type" content="text/html" charset="UTF-8"><link rel="stylesheet" media="all" href="./docco.css"></head><body><div id="container"><div id="background"></div><div id="jump_to">Jump To &hellip;<div id="jump_wrapper"><div id="jump_page"><a href="./index.html" class="source"><span class="file_name">README</span></a><a href="./lib/client.js.html" class="source "><span class="base_path">lib / </span><span class="file_name">client.js</span></a><a href="./lib/index.js.html" class="source "><span class="base_path">lib / </span><span class="file_name">index.js</span></a><a href="./lib/server.js.html" class="source "><span class="base_path">lib / </span><span class="file_name">server.js</span></a><a href="./lib/transports/client/http.js.html" class="source "><span class="base_path">lib / transports / client / </span><span class="file_name">http.js</span></a><a href="./lib/transports/client/tcp.js.html" class="source "><span class="base_path">lib / transports / client / </span><span class="file_name">tcp.js</span></a><a href="./lib/transports/server/http.js.html" class="source "><span class="base_path">lib / transports / server / </span><span class="file_name">http.js</span></a><a href="./lib/transports/server/tcp.js.html" class="source "><span class="base_path">lib / transports / server / </span><span class="file_name">tcp.js</span></a><a href="./lib/transports/shared/tcp.js.html" class="source "><span class="base_path">lib / transports / shared / </span><span class="file_name">tcp.js</span></a><a href="./test/client-http.js.html" class="source "><span class="base_path">test / </span><span class="file_name">client-http.js</span></a><a href="./test/client-tcp.js.html" class="source "><span class="base_path">test / </span><span class="file_name">client-tcp.js</span></a><a href="./test/client.js.html" class="source "><span class="base_path">test / </span><span class="file_name">client.js</span></a><a href="./test/full-stack.js.html" class="source "><span class="base_path">test / </span><span class="file_name">full-stack.js</span></a><a href="./test/index.js.html" class="source "><span class="base_path">test / </span><span class="file_name">index.js</span></a><a href="./test/server-http.js.html" class="source "><span class="base_path">test / </span><span class="file_name">server-http.js</span></a><a href="./test/server-tcp.js.html" class="source "><span class="base_path">test / </span><span class="file_name">server-tcp.js</span></a><a href="./test/server.js.html" class="source "><span class="base_path">test / </span><span class="file_name">server.js</span></a></div></div></div><table cellpadding="0" cellspacing="0"><thead><tr><th class="docs"></th><th class="code"></th></tr></thead><tbody><tr id="section"><td class="docs"><h1>multitransport-jsonrpc
+</h1><p>JSON-RPC where performance matters</p><h3>Version</h3><p>0.3.1</p><h3>Contributors</h3><p><span class="gravatar"><img src="http://www.gravatar.com/avatar/6cc6a6013685c260a0fdeb13e42fab02"/><span>David Ellis &lt;d.f.ellis@ieee.org&gt;</span></span></p><p><span class="gravatar"><img src="http://www.gravatar.com/avatar/54616556bd7ff63533841587766b2451"/><span>Alain Rodriguez &lt;eagle5command@gmail.com&gt;</span></span></p><p><span class="gravatar"><img src="http://www.gravatar.com/avatar/c7163b63bf321ae92d659e2338b5af8b"/><span>Amos Barreto &lt;amos.barreto@gmail.com&gt;</span></span></p><h3>Dependencies </h3><ul><li><b>queue-flow </b><span>*</span></li><li><b>lambda-js </b><span>*</span></li><li><b>buffertools </b><span>*</span></li></ul><p><h3>Stats</h3><pre class="code_stats">
+http://cloc.sourceforge.net v 1.55  T=1.0 s (16.0 files/s, 1328.0 lines/s)
+-------------------------------------------------------------------------------
+Language                     files          blank        comment           code
+-------------------------------------------------------------------------------
+Javascript                      16             84            194           1050
+-------------------------------------------------------------------------------
+SUM:                            16             84            194           1050
+-------------------------------------------------------------------------------
+</pre></p></td><td id="content" class="code"><h1>Multitransport JSON-RPC Client and Server <a href="https://travis-ci.org/uber/multitransport-jsonrpc"><img src="https://travis-ci.org/uber/multitransport-jsonrpc.png?branch=master" alt="Build Status" title="" /></a></h1>
+
+<p><em>multitransport-jsonrpc</em> provides a JSON-RPC solution for both the traditional HTTP scenario as well as for persistent, raw TCP connections. It's designed as a collection of constructor functions where both the client and server are split into two components: a single outer object in charge of the JSON-RPC protocol and providing the API for your code to interact with, and multiple sets of inner transport objects that deal with the particular data transport layer you want to use and how precisely to configure it.</p>
+
+<p>This pluggable architecture means you can continue to use an RPC-type pattern even in use-cases where JSON-RPC has not traditionally been a great fit. The HTTP transport provides compatibility with traditional JSON-RPC clients and servers, while the TCP transport trims the fat of the HTTP header and amortizes the TCP handshake overhead, improving transport performance for large numbers of small messages. A theoretical ZeroMQ or SMTP transport could allow totally asynchronous clients and servers, where neither the client nor server need to be running all the time for communication to still successfully take place.</p>
+
+<h2>Why TCP?</h2>
+
+<p>It's not an official JSON-RPC standard, so why not just use HTTP for everything? The answer is simple: ridiculous performance gains when you don't need to do a TCP handshake or account for the HTTP header overhead on each request and response. Here's the results of a perf test on my local machine:</p>
+
+<p><code>
+TCP took 726ms, 13774.104683195592 reqs/sec
+HTTP took 17924ms, 557.911180540058 reqs/sec
+</code></p>
+
+<p>The TCP transport is nearly 25x faster for small messages than for large.</p>
+
+<h2>Install</h2>
+
+<pre><code>npm install multitransport-jsonrpc
+</code></pre>
+
+<h2>Usage</h2>
+
+<p>```js
+var jsonrpc = require('multitransport-jsonrpc'); // Get the multitransport JSON-RPC suite</p>
+
+<p>var Server = jsonrpc.server; // The server constructor function
+var Client = jsonrpc.client; // The client constructor function</p>
+
+<p>var ServerHttp = jsonrpc.transports.server.http; // The server HTTP transport constructor function
+var ServerTcp = jsonrpc.transports.server.tcp; // The server TCP transport constructor function</p>
+
+<p>var ClientHttp = jsonrpc.transports.client.http;
+var ClientTcp = jsonrpc.transports.client.tcp;</p>
+
+<p>var jsonRpcHttpServer = new Server(new ServerHttp(8000), {
+    loopback: function(obj, callback) { callback(undefined, obj); }
+});</p>
+
+<p>var jsonRpcTcpServer = new Server(new ServerTcp(8001), {
+    loopback: function(obj, callback) { callback(undefined, obj); }
+});</p>
+
+<p>// Either explicitly register the remote methods
+var jsonRcpHttpClient = new Client(new ClientHttp('localhost', 8000));
+jsonRpcHttpClient.register('loopback');
+jsonRpcHttpClient.loopback('foo', function(err, val) {
+    console.log(val); // Prints 'foo'
+});</p>
+
+<p>// Or wait for the "auto-register" functionality do that for you
+new Client(new ClientTcp('localhost', 8001), {}, function(jsonRpcTcpClient) {
+    jsonRpcTcpClient.loopback('foo', function(err, val) {
+        console.log(val); // Prints 'foo'
+    });
+});
+```</p>
+
+<h3>Constructor Function Parameters</h3>
+
+<h4>jsonrpc.client</h4>
+
+<p><code>new jsonrpc.client(transport, options, done)</code></p>
+
+<p><code>transport</code> - A client transport object (pre-constructed, so you don't need to write a Javascript constructor function if you don't want to).</p>
+
+<p><code>options</code> - An object containing configuration options. The only configuration option for the client is <code>autoRegister</code> at the moment, a flag (default: true) that tells the client to attempt to get the listing of valid remote methods from the server.</p>
+
+<p><code>done</code> - An optional callback function that is passed a reference to the client object after the <code>autoRegister</code> remote call has completed.</p>
+
+<h4>jsonrpc.server</h4>
+
+<p><code>new jsonrpc.server(transport, scope)</code></p>
+
+<p><code>transport</code> - A server transport object (pre-constructed).</p>
+
+<p><code>scope</code> - An object containing a set of functions that will be accessible by the connecting clients.</p>
+
+<h4>jsonrpc.transports.client.http</h4>
+
+<p><code>new jsonrpc.transports.client.http(server, port, config)</code></p>
+
+<p><code>server</code> - The address of the server you're connecting to.</p>
+
+<p><code>port</code> - The port of the server you're connecting to.</p>
+
+<p><code>config</code> - The configuration settings for the client HTTP transport, which at the moment is only the <code>path</code>, which defaults to <code>/</code>.</p>
+
+<p>The various transports also provide events you can listen on, using the <a href="http://nodejs.org/api/events.html">Node.js EventEmitter</a> so the semantics should be familiar. The Client HTTP Transport provides:</p>
+
+<p><code>message</code> - This event is fired any time a message (response) is returned, and provides the registered callback with the JSON-RPC object received.</p>
+
+<p><code>shutdown</code> - This event is fired when the transport is shut down, and provides no arguments to the callback handlers.</p>
+
+<h4>jsonrpc.transports.client.tcp</h4>
+
+<p><code>new jsonrpc.transports.client.tcp(server, port, config)</code></p>
+
+<p><code>server</code> - The address of the server.</p>
+
+<p><code>port</code> - The port of the server.</p>
+
+<p><code>config</code> - The configuration settings. For the client TCP transport, these are:</p>
+
+<p><code>timeout</code> - The time, in ms, that the transport will wait for a response (default: 2 minutes)</p>
+
+<p><code>retries</code> - The number of times the client will attempt to reconnect to the server when a connection is dropped (default: 0)</p>
+
+<p><code>retryInterval</code> - The time, in ms, that the client will wait before reconnect attempts (default: 250ms)</p>
+
+<p>The Client TCP Transport events are:</p>
+
+<p><code>message</code> - This event is fired whenever a complete message is received, and the registered callbacks receive the JSON-RPC object as their only argument.</p>
+
+<p><code>retry</code> - This event is fired whenever the transport attempts to reconnect to the server. There are no arguments provided to the callback.</p>
+
+<p><code>end</code> - This event is fired when the TCP connection is ended. If reconnection retries are enabled, it is only fired when the transport fails to reconnect.</p>
+
+<p><code>sweep</code> - This event is fired when the transport clears out old requests that went past the expiration time. The callbacks receive an array of failed requests (if any) as the only argument.</p>
+
+<p><code>shutdown</code> - This event is fired when the transport is shutdown.</p>
+
+<h4>jsonrpc.transports.server.http</h4>
+
+<p><code>new jsonrpc.transports.server.http(port, config)</code></p>
+
+<p><code>port</code> - The port the server should use.</p>
+
+<p><code>config</code> - The configuration settings. For the server HTTP transport, only <code>acao</code> exists. It is the value that should be returned to clients in the <code>Access-Control-Allow-Origin</code> header, and defaults to <code>*</code>.</p>
+
+<p>The Server HTTP Transport events are:</p>
+
+<p><code>message</code> - This event is fired whenever a complete message is received, and the registered callbacks receive the JSON-RPC object as their only argument.</p>
+
+<p><code>listening</code> - This event is fired whenever the HTTP server is open and listening for connections.</p>
+
+<p><code>shutdown</code> - This event is fired when the transport is shutdown.</p>
+
+<h4>jsonrpc.transports.server.tcp</h4>
+
+<p><code>new jsonrpc.transports.server.tcp(port, config)</code></p>
+
+<p><code>port</code> - The port the server should use.</p>
+
+<p><code>config</code> - The configuration settings. For the server TCP transport, these are:</p>
+
+<p><code>retries</code> - The number of times the server will attempt to listen to the TCP port specified. (Useful during fast restarts where the new node app is starting while the old node app is being shut down.)</p>
+
+<p><code>retryInterval</code> - The time, in ms, that the server will wait between attempts to grab the TCP port.</p>
+
+<p>The Server TCP Transport events are:</p>
+
+<p><code>connection</code> - This event is fired whenever a new connection is made to the TCP server. The callbacks receive a reference to the connection object as their only argument.</p>
+
+<p><code>message</code> - This event is fired whenever a JSON-RPC message is received. The callbacks receive the JSON-RPC object as their only argument.</p>
+
+<p><code>closedConnection</code> - This event is fired whenever an open connection to a client is closed. The callbacks receive a reference to the connection object as their only argument.</p>
+
+<p><code>listening</code> - This event is fired whenever the TCP server is open and listening for connections.</p>
+
+<p><code>retry</code> - This event is fired whenever the TCP server cannot open the port to listen for connections and is retrying to connect.</p>
+
+<p><code>error</code> - This event is fired whenever an unhandled error in the TCP server occurs. If configured, the server will attempt to solve listen errors. The callbacks receive the error object as their only argument.</p>
+
+<p><code>shutdown</code> - This event is fired when the server is shutdown.</p>
+
+<h2>Defining JSON-RPC Server Methods</h2>
+
+<p>By default, JSON-RPC server methods are asynchronous, taking a callback function as the last argument. The callback function assumes the first argument it receives is an error and the second argument is a result, in the Node.js style.</p>
+
+<p><code>js
+function foo(bar, baz, callback) {
+    if(!baz) {
+        callback(new Error('no baz!'));
+    } else {
+        callback(null, bar + baz);
+    }
+}
+</code></p>
+
+<p>Alternately, the JSON-RPC server provides a <code>blocking</code> method that can be used to mark a function as a blocking function that takes no callback. Then the result is returned and errors are thrown.</p>
+
+<p><code>js
+var blocking = jsonrpc.server.blocking;
+var blockingFoo = blocking(function(bar, baz) {
+    if(!baz) {
+        throw new Error('no baz!');
+    } else {
+        return bar + baz;
+    }
+});
+</code></p>
+
+<h2>Using JSON-RPC Client Methods</h2>
+
+<p>On the client side, you can only use the methods in an asynchronous way. All assume the last argument is a callback method where the first argument is an error and the second is a result. The JSON-RPC client highly recommends your server doesn't provide methods named <code>transport</code>, <code>request</code>, <code>register</code>, or <code>shutdown</code>, since the remote methods are in the same namespace as these helper methods of the JSON-RPC client, but the <code>request</code> method can still be used in this way to manually call any of these "blacklisted" methods:</p>
+
+<p><code>js
+jsonRpcClient.request("shutdown", ["arg1", "arg2"], callbackFunc);
+</code></p>
+
+<h2>Creating A New Transport</h2>
+
+<p>If you want to write your own transport constructor functions for multitransport-jsonrpc, here's what the client and server objects expect from their transport:</p>
+
+<h3>Client</h3>
+
+<p>The transport is expected to have two methods: <code>request</code> and <code>shutdown</code>.</p>
+
+<p><code>request</code> is expected to be given a JSON-RPC object (not a string) as its first argument and a callback function as its second argument. The callback function expects its one and only argument to be a JSON-RPC object (not a string) that the error or result can be pulled from.</p>
+
+<p><code>shutdown</code> is expected to take one argument, an <strong>optional</strong> callback function to let it know when the shutdown has completed.</p>
+
+<h3>Server</h3>
+
+<p>The transport is expected to have a <code>shutdown</code> method that behaves exactly the same as the method described above.</p>
+
+<p>It is also expected to make use of a <code>handler</code> method that the server attaches to it. This method expects two arguments, the first is a JSON-RPC object (not a string), but if the input is not valid JSON will handle the unparsed data just fine. The second argument is a callback that it provides with the response JSON-RPC object (not a string).</p>
+
+<h2>License (MIT)</h2>
+
+<p>Portions Copyright (C) 2013 by Uber Technologies, Inc, David Ellis</p>
+
+<p>Portions Copyright (C) 2011 by Agrosica, Inc, David Ellis, Alain Rodriguez, Hector Lugo</p>
+
+<p>Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:</p>
+
+<p>The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.</p>
+
+<p>THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.</p>  </td></tr></tbody></table><div id="generated">generated Thu Mar 07 2013 08:03:01 GMT-0800 (PST)  </div></div></body></html>
