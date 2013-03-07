@@ -5,8 +5,15 @@
         "Amos Barreto <amos.barreto@gmail.com>"
 	],
 	"name": "multitransport-jsonrpc",
-	"version": "0.3.1",
+	"version": "0.3.2",
 	"description": "JSON-RPC where performance matters",
+    "keywords": ["json-rpc", "http", "tcp", "multitransport"],
+    "homepage": "http://uber.github.com/multitransport-jsonrpc/",
+    "bugs": "https://github.com/uber/multitransport-jsonrpc/issues",
+    "repository": {
+        "type": "git",
+        "url": "git://git@github.com:uber/multitransport-jsonrpc.git"
+    },
 	"main": "lib/index.js",
     "dependencies": {
         "queue-flow": "*",
