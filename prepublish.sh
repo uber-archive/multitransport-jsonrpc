@@ -4,7 +4,7 @@
 npm test
 
 # Build documentation and commit to the gh-pages branch, then go back to master branch
-docco-husky ./lib/*
+docco-husky lib/* test/*
 git stash
 mv docs docs-new
 git checkout gh-pages
@@ -15,7 +15,7 @@ git checkout master
 git stash pop
 
 # Create the commit, tag the commit with the proper version, and push to GitHub
-git commit -am \"Automatic commit of version $npm_package_version\"
+git commit -am "Automatic commit of version $npm_package_version"
 git tag $npm_package_version
 git push
 git push --tags
