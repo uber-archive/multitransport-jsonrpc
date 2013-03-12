@@ -61,6 +61,15 @@ var jsonRpcTcpServer = new Server(new ServerTcp(8001), {
     loopback: function(obj, callback) { callback(undefined, obj); }
 });
 
+var express = require('express');
+var app = express();
+app.use(express.bodyParser());
+var jsonRpcMiddlewareServer = new Server(new ServerMiddleware(), {
+    loopback: function(obj, callback) { callback(undefined, obj); }
+});
+app.use('/rpc', jsonRpcMiddlewareServer.transport.middleware);
+app.listen(8002);
+
 // Either explicitly register the remote methods
 var jsonRcpHttpClient = new Client(new ClientHttp('localhost', 8000));
 jsonRpcHttpClient.register('loopback');
@@ -73,6 +82,12 @@ new Client(new ClientTcp('localhost', 8001), {}, function(jsonRpcTcpClient) {
     jsonRpcTcpClient.loopback('foo', function(err, val) {
         console.log(val); // Prints 'foo'
     });
+});
+
+var jsonRpcExpressClient = new Client(new ClientHttp('localhost', 8002, { path: '/rpc' }));
+jsonRpcExpressClient.register('loopback');
+jsonRpcExpressClient.loopback('foo', function(err, val) {
+    console.log(val); // Prints 'foo'
 });
 {% endhighlight %}
 
@@ -183,6 +198,22 @@ new Client(new ClientTcp('localhost', 8001), {}, function(jsonRpcTcpClient) {
 <p><code>error</code> - This event is fired whenever an unhandled error in the TCP server occurs. If configured, the server will attempt to solve listen errors. The callbacks receive the error object as their only argument.</p>
 
 <p><code>shutdown</code> - This event is fired when the server is shutdown.</p>
+
+<h4>jsonrpc.transports.server.middleware</h4>
+
+<p><code>new jsonrpc.transports.server.middleware(config)</code></p>
+
+<p><code>config</code> - The configuration settings. For the Connect/Express middleware transport, these are:</p>
+
+<p><code>acao</code> - The <code>Access-Control-Allow-Origin</code> header value, which defaults to <code>*</code>.</p>
+
+<p><code>server</code> - A reference to the underlying server the middleware relies on. Used only for <code>shutdown</code> compatibility, if desired.</p>
+
+<p>The Server Middleware Transport events are:</p>
+
+<p><code>message</code> - This event is fired whenever a complete message is received, and the registered callbacks receive the JSON-RPC object as their only argument.</p>
+
+<p><code>shutdown</code> - This event is fired when the transport is shutdown.</p>
 
 <h2 id="defineServerMethods">Defining JSON-RPC Server Methods</h2>
 
