@@ -22,7 +22,8 @@
     },
     "devDependencies": {
         "nodeunit": "*",
-        "docco-husky": "*"
+        "docco-husky": "*",
+        "express": "*"
     },
     "scripts": {
         "realpublish": "./prepublish.sh",
