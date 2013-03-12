@@ -5,6 +5,9 @@ var ClientHttp = jsonrpc.transports.client.http;
 var ClientTcp = jsonrpc.transports.client.tcp;
 var ServerHttp = jsonrpc.transports.server.http;
 var ServerTcp = jsonrpc.transports.server.tcp;
+var ServerMiddleware = jsonrpc.transports.server.middleware;
+var express = require('express');
+var http = require('http');
 
 exports.loopbackHttp = function(test) {
     test.expect(1);
@@ -32,6 +35,45 @@ exports.failureTcp = function(test) {
             test.equal(err.message, "I have no idea what I'm doing.", 'error message transmitted successfully.');
             c.shutdown(function() {
                 server.shutdown(test.done.bind(test));
+            });
+        });
+    });
+};
+
+exports.loopbackExpress = function(test) {
+    test.expect(2);
+
+    var app = express();
+    app.use(express.bodyParser());
+    app.get('/foo', function(req, res) {
+        res.end('bar');
+    });
+
+    var server = new Server(new ServerMiddleware(), {
+        loopback: function(arg, callback) { callback(null, arg); }
+    });
+    app.use('/rpc', server.transport.middleware);
+
+    //app.listen(55555); // Express 3.0 removed the ability to cleanly shutdown an express server
+    // The following is copied from the definition of app.listen()
+    var server = http.createServer(app);
+    server.listen(55555);
+
+    var client = new Client(new ClientHttp('localhost', 55555, { path: '/rpc' }));
+    client.register('loopback');
+
+    http.get({
+        port: 55555,
+        path: '/foo'
+    }, function(res) {
+        res.setEncoding('utf8');
+        var data = '';
+        res.on('data', function(chunk) { data += chunk; });
+        res.on('end', function() {
+            test.equal(data, 'bar', 'regular http requests work');
+            client.loopback('bar', function(err, result) {
+                test.equal(result, 'bar', 'JSON-RPC as a middleware works');
+                server.close(test.done.bind(test));
             });
         });
     });

@@ -29,6 +29,7 @@ var Client = jsonrpc.client; // The client constructor function
 
 var ServerHttp = jsonrpc.transports.server.http; // The server HTTP transport constructor function
 var ServerTcp = jsonrpc.transports.server.tcp; // The server TCP transport constructor function
+var ServerMiddleware = jsonrpc.transports.server.middleware; // The server Middleware transport constructor function (for Express/Connect)
 
 var ClientHttp = jsonrpc.transports.client.http;
 var ClientTcp = jsonrpc.transports.client.tcp;
@@ -40,6 +41,15 @@ var jsonRpcHttpServer = new Server(new ServerHttp(8000), {
 var jsonRpcTcpServer = new Server(new ServerTcp(8001), {
     loopback: function(obj, callback) { callback(undefined, obj); }
 });
+
+var express = require('express');
+var app = express();
+app.use(express.bodyParser());
+var jsonRpcMiddlewareServer = new Server(new ServerMiddleware(), {
+    loopback: function(obj, callback) { callback(undefined, obj); }
+});
+app.use('/rpc', jsonRpcMiddlewareServer.transport.middleware);
+app.listen(8002);
 
 // Either explicitly register the remote methods
 var jsonRcpHttpClient = new Client(new ClientHttp('localhost', 8000));
@@ -53,6 +63,12 @@ new Client(new ClientTcp('localhost', 8001), {}, function(jsonRpcTcpClient) {
     jsonRpcTcpClient.loopback('foo', function(err, val) {
         console.log(val); // Prints 'foo'
     });
+});
+
+var jsonRpcExpressClient = new Client(new ClientHttp('localhost', 8002, { path: '/rpc' }));
+jsonRpcExpressClient.register('loopback');
+jsonRpcExpressClient.loopback('foo', function(err, val) {
+    console.log(val); // Prints 'foo'
 });
 ```
 
@@ -163,6 +179,22 @@ The Server TCP Transport events are:
 ``error`` - This event is fired whenever an unhandled error in the TCP server occurs. If configured, the server will attempt to solve listen errors. The callbacks receive the error object as their only argument.
 
 ``shutdown`` - This event is fired when the server is shutdown.
+
+#### jsonrpc.transports.server.middleware
+
+``new jsonrpc.transports.server.middleware(config)``
+
+``config`` - The configuration settings. For the Connect/Express middleware transport, these are:
+
+``acao`` - The ``Access-Control-Allow-Origin`` header value, which defaults to ``*``.
+
+``server`` - A reference to the underlying server the middleware relies on. Used only for ``shutdown`` compatibility, if desired.
+
+The Server Middleware Transport events are:
+
+``message`` - This event is fired whenever a complete message is received, and the registered callbacks receive the JSON-RPC object as their only argument.
+
+``shutdown`` - This event is fired when the transport is shutdown.
 
 ## Defining JSON-RPC Server Methods
 
