@@ -5,10 +5,12 @@ var net = require('net');
 exports.loopback = function(test) {
     test.expect(1);
     var server = net.createServer(function(con) {
-        var buffer = '';
+        var buffer = new Buffer('');
+        var messageLen = 0;
         con.on('data', function(data) {
-            buffer += data.toString();
-            if(shared.containsCompleteMessage(buffer)) {
+            buffer = Buffer.concat([buffer, data]);
+            if(messageLen === 0) messageLen = shared.getMessageLen([data]);
+            if(buffer.length === messageLen + 4) {
                 con.write(buffer);
                 con.end();
             }
@@ -27,10 +29,12 @@ exports.loopback = function(test) {
 exports.sweep = function(test) {
     test.expect(2);
     var server = net.createServer(function(con) {
-        var buffer = '';
+        var buffer = new Buffer('');
+        var messageLen = 0;
         con.on('data', function(data) {
-            buffer += data.toString();
-            if(shared.containsCompleteMessage(buffer)) {
+            buffer = Buffer.concat([buffer, data]);
+            if(messageLen === 0) messageLen = shared.getMessageLen([data]);
+            if(buffer.length === messageLen + 4) {
                 setTimeout(function() {
                     con.write(buffer);
                     con.end();
@@ -57,10 +61,12 @@ exports.glitchedConnection = function(test) {
     var con;
     var serverFunc = function(c) {
         con = c;
-        var buffer = '';
+        var buffer = new Buffer('');
+        var messageLen = 0;
         c.on('data', function(data) {
-            buffer += data.toString();
-            if(shared.containsCompleteMessage(buffer)) {
+            buffer = Buffer.concat([buffer, data]);
+            if(messageLen === 0) messageLen = shared.getMessageLen([data]);
+            if(buffer.length === messageLen + 4) {
                 setTimeout(function() {
                     if(con) {
                         con.write(buffer);
