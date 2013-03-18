@@ -41,17 +41,29 @@
 <span class="nx">exports</span><span class="p">.</span><span class="nx">failureTcp</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">test</span><span class="p">)</span> <span class="p">{</span>
     <span class="nx">test</span><span class="p">.</span><span class="nx">expect</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
     <span class="kd">var</span> <span class="nx">server</span> <span class="o">=</span> <span class="nx">net</span><span class="p">.</span><span class="nx">createServer</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">con</span><span class="p">)</span> <span class="p">{</span>
-        <span class="kd">var</span> <span class="nx">buffer</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Buffer</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">);</span>
+        <span class="kd">var</span> <span class="nx">buffers</span> <span class="o">=</span> <span class="p">[];</span>
+        <span class="kd">var</span> <span class="nx">bufferLen</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+        <span class="kd">var</span> <span class="nx">messageLen</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
         <span class="nx">con</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span> <span class="p">{</span>
-            <span class="nx">buffer</span> <span class="o">=</span> <span class="nx">buffer</span><span class="p">.</span><span class="nx">concat</span><span class="p">(</span><span class="nx">data</span><span class="p">);</span>
+            <span class="nx">buffers</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">data</span><span class="p">);</span>
+            <span class="nx">bufferLen</span> <span class="o">+=</span> <span class="nx">data</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span>
+            <span class="k">if</span><span class="p">(</span><span class="nx">messageLen</span> <span class="o">===</span> <span class="mi">0</span><span class="p">)</span> <span class="nx">messageLen</span> <span class="o">=</span> <span class="nx">shared</span><span class="p">.</span><span class="nx">getMessageLen</span><span class="p">(</span><span class="nx">buffers</span><span class="p">);</span>
             <span class="kd">var</span> <span class="nx">res</span><span class="p">,</span> <span class="nx">obj</span><span class="p">;</span>
-            <span class="k">while</span> <span class="p">((</span><span class="nx">res</span> <span class="o">=</span> <span class="nx">shared</span><span class="p">.</span><span class="nx">parseBuffer</span><span class="p">(</span><span class="nx">buffer</span><span class="p">)))</span> <span class="p">{</span>
-                <span class="nx">buffer</span> <span class="o">=</span> <span class="nx">res</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
-                <span class="nx">obj</span> <span class="o">=</span> <span class="nx">res</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
-                <span class="nx">con</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="nx">shared</span><span class="p">.</span><span class="nx">formatMessage</span><span class="p">({</span>
-                    <span class="nx">id</span><span class="o">:</span> <span class="nx">obj</span> <span class="o">&amp;&amp;</span> <span class="nx">obj</span><span class="p">.</span><span class="nx">id</span><span class="p">,</span>
-                    <span class="nx">error</span><span class="o">:</span> <span class="s2">&quot;I have no idea what I&#39;m doing.&quot;</span>
-                <span class="p">}));</span>
+            <span class="k">if</span><span class="p">(</span><span class="nx">bufferLen</span> <span class="o">-</span> <span class="mi">4</span> <span class="o">&gt;=</span> <span class="nx">messageLen</span><span class="p">)</span> <span class="p">{</span>
+                <span class="k">while</span> <span class="p">(</span><span class="nx">messageLen</span> <span class="o">&amp;&amp;</span> <span class="nx">bufferLen</span> <span class="o">-</span> <span class="mi">4</span> <span class="o">&gt;=</span> <span class="nx">messageLen</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="nx">res</span> <span class="o">=</span> <span class="nx">shared</span><span class="p">.</span><span class="nx">parseBuffer</span><span class="p">(</span><span class="nx">buffers</span><span class="p">,</span> <span class="nx">messageLen</span><span class="p">)))</span> <span class="p">{</span>
+                    <span class="nx">buffers</span> <span class="o">=</span> <span class="nx">res</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+                    <span class="nx">obj</span> <span class="o">=</span> <span class="nx">res</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
+                    <span class="nx">con</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="nx">shared</span><span class="p">.</span><span class="nx">formatMessage</span><span class="p">({</span>
+                        <span class="nx">id</span><span class="o">:</span> <span class="nx">obj</span> <span class="o">&amp;&amp;</span> <span class="nx">obj</span><span class="p">.</span><span class="nx">id</span><span class="p">,</span>
+                        <span class="nx">error</span><span class="o">:</span> <span class="s2">&quot;I have no idea what I&#39;m doing.&quot;</span>
+                    <span class="p">}));</span>
+                    <span class="nx">bufferLen</span> <span class="o">=</span> <span class="nx">buffers</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">buffer</span><span class="p">)</span> <span class="p">{</span>
+                        <span class="k">return</span> <span class="nx">buffer</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span>
+                    <span class="p">}).</span><span class="nx">reduce</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">fullLen</span><span class="p">,</span> <span class="nx">currLen</span><span class="p">)</span> <span class="p">{</span>
+                        <span class="k">return</span> <span class="nx">fullLen</span> <span class="o">+</span> <span class="nx">currLen</span><span class="p">;</span>
+                    <span class="p">},</span> <span class="mi">0</span><span class="p">);</span>
+                    <span class="nx">messageLen</span> <span class="o">=</span> <span class="nx">shared</span><span class="p">.</span><span class="nx">getMessageLen</span><span class="p">(</span><span class="nx">buffers</span><span class="p">);</span>
+                <span class="p">}</span>
             <span class="p">}</span>
         <span class="p">});</span>
     <span class="p">});</span>
@@ -68,4 +80,4 @@
     <span class="p">});</span>
 <span class="p">};</span>
 
-</pre></div></td></tr></tbody></table><div id="generated">generated Tue Mar 12 2013 15:15:54 GMT-0700 (PDT)  </div></div></body></html>
+</pre></div></td></tr></tbody></table><div id="generated">generated Mon Mar 18 2013 14:52:36 GMT-0700 (PDT)  </div></div></body></html>

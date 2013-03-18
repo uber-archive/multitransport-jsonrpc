@@ -63,14 +63,16 @@
             <span class="nx">params</span><span class="o">:</span> <span class="p">[{</span> <span class="nx">hello</span><span class="o">:</span> <span class="s1">&#39;world&#39;</span> <span class="p">}]</span>
         <span class="p">}));</span>
     <span class="p">});</span>
-    <span class="kd">var</span> <span class="nx">buffer</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Buffer</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">);</span>
+    <span class="kd">var</span> <span class="nx">buffers</span> <span class="o">=</span> <span class="p">[],</span> <span class="nx">bufferLen</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="nx">messageLen</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
     <span class="nx">con</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span> <span class="p">{</span>
-        <span class="nx">buffer</span> <span class="o">=</span> <span class="nx">buffer</span><span class="p">.</span><span class="nx">concat</span><span class="p">(</span><span class="nx">data</span><span class="p">);</span>
-        <span class="k">if</span><span class="p">(</span><span class="nx">shared</span><span class="p">.</span><span class="nx">containsCompleteMessage</span><span class="p">(</span><span class="nx">buffer</span><span class="p">.</span><span class="nx">toString</span><span class="p">()))</span> <span class="nx">con</span><span class="p">.</span><span class="nx">end</span><span class="p">();</span>
+        <span class="nx">buffers</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">data</span><span class="p">);</span>
+        <span class="nx">bufferLen</span> <span class="o">+=</span> <span class="nx">data</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span>
+        <span class="k">if</span><span class="p">(</span><span class="nx">messageLen</span> <span class="o">===</span> <span class="mi">0</span><span class="p">)</span> <span class="nx">messageLen</span> <span class="o">=</span> <span class="nx">shared</span><span class="p">.</span><span class="nx">getMessageLen</span><span class="p">(</span><span class="nx">buffers</span><span class="p">);</span>
+        <span class="k">if</span><span class="p">(</span><span class="nx">bufferLen</span> <span class="o">===</span> <span class="nx">messageLen</span> <span class="o">+</span> <span class="mi">4</span><span class="p">)</span> <span class="nx">con</span><span class="p">.</span><span class="nx">end</span><span class="p">();</span>
     <span class="p">});</span>
     <span class="nx">con</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;end&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
         <span class="k">try</span> <span class="p">{</span>
-            <span class="kd">var</span> <span class="nx">res</span> <span class="o">=</span> <span class="nx">shared</span><span class="p">.</span><span class="nx">parseBuffer</span><span class="p">(</span><span class="nx">buffer</span><span class="p">);</span>
+            <span class="kd">var</span> <span class="nx">res</span> <span class="o">=</span> <span class="nx">shared</span><span class="p">.</span><span class="nx">parseBuffer</span><span class="p">(</span><span class="nx">buffers</span><span class="p">,</span> <span class="nx">messageLen</span><span class="p">);</span>
             <span class="nx">test</span><span class="p">.</span><span class="nx">equal</span><span class="p">(</span><span class="nx">res</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="nx">error</span><span class="p">.</span><span class="nx">message</span><span class="p">,</span> <span class="s2">&quot;I have no idea what I&#39;m doing&quot;</span><span class="p">,</span> <span class="s1">&#39;Returns the error as an error&#39;</span><span class="p">);</span>
         <span class="p">}</span> <span class="k">catch</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span></pre></div></td></tr><tr id="section-3"><td class="docs"><div class="pilwrap"><a href="#section-3" class="pilcrow">&#182;</a></div><p>Do nothing</p>
 </td><td class="code"><div class="highlight"><pre>        <span class="p">}</span>
@@ -79,4 +81,4 @@
     <span class="p">});</span>
 <span class="p">};</span>
 
-</pre></div></td></tr></tbody></table><div id="generated">generated Tue Mar 12 2013 15:15:55 GMT-0700 (PDT)  </div></div></body></html>
+</pre></div></td></tr></tbody></table><div id="generated">generated Mon Mar 18 2013 14:52:37 GMT-0700 (PDT)  </div></div></body></html>

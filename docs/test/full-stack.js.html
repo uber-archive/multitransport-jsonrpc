@@ -44,7 +44,7 @@
 
 <span class="kd">function</span> <span class="nx">perf</span><span class="p">(</span><span class="nx">testString</span><span class="p">,</span> <span class="nx">test</span><span class="p">)</span> <span class="p">{</span>
     <span class="nx">test</span><span class="p">.</span><span class="nx">expect</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
-    <span class="kd">var</span> <span class="nx">numMessages</span> <span class="o">=</span> <span class="mi">10000</span>
+    <span class="kd">var</span> <span class="nx">numMessages</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">;</span>
     <span class="kd">var</span> <span class="nx">tcpServer</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Server</span><span class="p">(</span><span class="k">new</span> <span class="nx">ServerTcp</span><span class="p">(</span><span class="mi">9001</span><span class="p">),</span> <span class="p">{</span>
         <span class="nx">loopback</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">arg</span><span class="p">,</span> <span class="nx">callback</span><span class="p">)</span> <span class="p">{</span> <span class="nx">callback</span><span class="p">(</span><span class="kc">null</span><span class="p">,</span> <span class="nx">arg</span><span class="p">);</span> <span class="p">}</span>
     <span class="p">});</span>
@@ -97,4 +97,4 @@
 <span class="nx">exports</span><span class="p">.</span><span class="nx">perf_10000</span> <span class="o">=</span> <span class="nx">perf</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="kc">null</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="p">.</span><span class="nx">repeat</span><span class="p">(</span><span class="mi">10000</span><span class="p">));</span>
 <span class="nx">exports</span><span class="p">.</span><span class="nx">perf_100000</span> <span class="o">=</span> <span class="nx">perf</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="kc">null</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="p">.</span><span class="nx">repeat</span><span class="p">(</span><span class="mi">100000</span><span class="p">));</span>
 
-</pre></div></td></tr></tbody></table><div id="generated">generated Tue Mar 12 2013 15:15:54 GMT-0700 (PDT)  </div></div></body></html>
+</pre></div></td></tr></tbody></table><div id="generated">generated Mon Mar 18 2013 14:52:36 GMT-0700 (PDT)  </div></div></body></html>

@@ -6,10 +6,12 @@
 <span class="nx">exports</span><span class="p">.</span><span class="nx">loopback</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">test</span><span class="p">)</span> <span class="p">{</span>
     <span class="nx">test</span><span class="p">.</span><span class="nx">expect</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
     <span class="kd">var</span> <span class="nx">server</span> <span class="o">=</span> <span class="nx">net</span><span class="p">.</span><span class="nx">createServer</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">con</span><span class="p">)</span> <span class="p">{</span>
-        <span class="kd">var</span> <span class="nx">buffer</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">;</span>
+        <span class="kd">var</span> <span class="nx">buffer</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Buffer</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">);</span>
+        <span class="kd">var</span> <span class="nx">messageLen</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
         <span class="nx">con</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span> <span class="p">{</span>
-            <span class="nx">buffer</span> <span class="o">+=</span> <span class="nx">data</span><span class="p">.</span><span class="nx">toString</span><span class="p">();</span>
-            <span class="k">if</span><span class="p">(</span><span class="nx">shared</span><span class="p">.</span><span class="nx">containsCompleteMessage</span><span class="p">(</span><span class="nx">buffer</span><span class="p">))</span> <span class="p">{</span>
+            <span class="nx">buffer</span> <span class="o">=</span> <span class="nx">Buffer</span><span class="p">.</span><span class="nx">concat</span><span class="p">([</span><span class="nx">buffer</span><span class="p">,</span> <span class="nx">data</span><span class="p">]);</span>
+            <span class="k">if</span><span class="p">(</span><span class="nx">messageLen</span> <span class="o">===</span> <span class="mi">0</span><span class="p">)</span> <span class="nx">messageLen</span> <span class="o">=</span> <span class="nx">shared</span><span class="p">.</span><span class="nx">getMessageLen</span><span class="p">([</span><span class="nx">data</span><span class="p">]);</span>
+            <span class="k">if</span><span class="p">(</span><span class="nx">buffer</span><span class="p">.</span><span class="nx">length</span> <span class="o">===</span> <span class="nx">messageLen</span> <span class="o">+</span> <span class="mi">4</span><span class="p">)</span> <span class="p">{</span>
                 <span class="nx">con</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="nx">buffer</span><span class="p">);</span>
                 <span class="nx">con</span><span class="p">.</span><span class="nx">end</span><span class="p">();</span>
             <span class="p">}</span>
@@ -28,10 +30,12 @@
 <span class="nx">exports</span><span class="p">.</span><span class="nx">sweep</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">test</span><span class="p">)</span> <span class="p">{</span>
     <span class="nx">test</span><span class="p">.</span><span class="nx">expect</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
     <span class="kd">var</span> <span class="nx">server</span> <span class="o">=</span> <span class="nx">net</span><span class="p">.</span><span class="nx">createServer</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">con</span><span class="p">)</span> <span class="p">{</span>
-        <span class="kd">var</span> <span class="nx">buffer</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">;</span>
+        <span class="kd">var</span> <span class="nx">buffer</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Buffer</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">);</span>
+        <span class="kd">var</span> <span class="nx">messageLen</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
         <span class="nx">con</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span> <span class="p">{</span>
-            <span class="nx">buffer</span> <span class="o">+=</span> <span class="nx">data</span><span class="p">.</span><span class="nx">toString</span><span class="p">();</span>
-            <span class="k">if</span><span class="p">(</span><span class="nx">shared</span><span class="p">.</span><span class="nx">containsCompleteMessage</span><span class="p">(</span><span class="nx">buffer</span><span class="p">))</span> <span class="p">{</span>
+            <span class="nx">buffer</span> <span class="o">=</span> <span class="nx">Buffer</span><span class="p">.</span><span class="nx">concat</span><span class="p">([</span><span class="nx">buffer</span><span class="p">,</span> <span class="nx">data</span><span class="p">]);</span>
+            <span class="k">if</span><span class="p">(</span><span class="nx">messageLen</span> <span class="o">===</span> <span class="mi">0</span><span class="p">)</span> <span class="nx">messageLen</span> <span class="o">=</span> <span class="nx">shared</span><span class="p">.</span><span class="nx">getMessageLen</span><span class="p">([</span><span class="nx">data</span><span class="p">]);</span>
+            <span class="k">if</span><span class="p">(</span><span class="nx">buffer</span><span class="p">.</span><span class="nx">length</span> <span class="o">===</span> <span class="nx">messageLen</span> <span class="o">+</span> <span class="mi">4</span><span class="p">)</span> <span class="p">{</span>
                 <span class="nx">setTimeout</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
                     <span class="nx">con</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="nx">buffer</span><span class="p">);</span>
                     <span class="nx">con</span><span class="p">.</span><span class="nx">end</span><span class="p">();</span>
@@ -58,10 +62,12 @@
     <span class="kd">var</span> <span class="nx">con</span><span class="p">;</span>
     <span class="kd">var</span> <span class="nx">serverFunc</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">c</span><span class="p">)</span> <span class="p">{</span>
         <span class="nx">con</span> <span class="o">=</span> <span class="nx">c</span><span class="p">;</span>
-        <span class="kd">var</span> <span class="nx">buffer</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">;</span>
+        <span class="kd">var</span> <span class="nx">buffer</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Buffer</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">);</span>
+        <span class="kd">var</span> <span class="nx">messageLen</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
         <span class="nx">c</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span> <span class="p">{</span>
-            <span class="nx">buffer</span> <span class="o">+=</span> <span class="nx">data</span><span class="p">.</span><span class="nx">toString</span><span class="p">();</span>
-            <span class="k">if</span><span class="p">(</span><span class="nx">shared</span><span class="p">.</span><span class="nx">containsCompleteMessage</span><span class="p">(</span><span class="nx">buffer</span><span class="p">))</span> <span class="p">{</span>
+            <span class="nx">buffer</span> <span class="o">=</span> <span class="nx">Buffer</span><span class="p">.</span><span class="nx">concat</span><span class="p">([</span><span class="nx">buffer</span><span class="p">,</span> <span class="nx">data</span><span class="p">]);</span>
+            <span class="k">if</span><span class="p">(</span><span class="nx">messageLen</span> <span class="o">===</span> <span class="mi">0</span><span class="p">)</span> <span class="nx">messageLen</span> <span class="o">=</span> <span class="nx">shared</span><span class="p">.</span><span class="nx">getMessageLen</span><span class="p">([</span><span class="nx">data</span><span class="p">]);</span>
+            <span class="k">if</span><span class="p">(</span><span class="nx">buffer</span><span class="p">.</span><span class="nx">length</span> <span class="o">===</span> <span class="nx">messageLen</span> <span class="o">+</span> <span class="mi">4</span><span class="p">)</span> <span class="p">{</span>
                 <span class="nx">setTimeout</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
                     <span class="k">if</span><span class="p">(</span><span class="nx">con</span><span class="p">)</span> <span class="p">{</span>
                         <span class="nx">con</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="nx">buffer</span><span class="p">);</span>
@@ -98,4 +104,4 @@
     <span class="p">},</span> <span class="mi">100</span><span class="p">);</span>
 <span class="p">};</span>
 
-</pre></div></td></tr></tbody></table><div id="generated">generated Tue Mar 12 2013 15:15:53 GMT-0700 (PDT)  </div></div></body></html>
+</pre></div></td></tr></tbody></table><div id="generated">generated Mon Mar 18 2013 14:52:35 GMT-0700 (PDT)  </div></div></body></html>
