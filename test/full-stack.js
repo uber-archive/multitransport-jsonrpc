@@ -21,7 +21,7 @@ exports.loopbackHttp = function(test) {
 };
 
 exports.failureTcp = function(test) {
-    test.expect(2);
+    test.expect(4);
     var server = new Server(new ServerTcp(44444), {
         failure: function(arg, callback) { callback(new Error("I have no idea what I'm doing.")); }
     });
@@ -33,6 +33,9 @@ exports.failureTcp = function(test) {
                 server.shutdown(test.done.bind(test));
             });
         });
+    });
+    client.transport.on('message', function() {
+        test.ok('received a message'); // should happen twice
     });
 };
 
