@@ -30,10 +30,12 @@ var Client = jsonrpc.client; // The client constructor function
 var ServerHttp = jsonrpc.transports.server.http; // The server HTTP transport constructor function
 var ServerTcp = jsonrpc.transports.server.tcp; // The server TCP transport constructor function
 var ServerMiddleware = jsonrpc.transports.server.middleware; // The server Middleware transport constructor function (for Express/Connect)
+var Loopback = jsonrpc.transports.shared.loopback; // The Loopback transport for mocking clients/servers in tests
 
 var ClientHttp = jsonrpc.transports.client.http;
 var ClientTcp = jsonrpc.transports.client.tcp;
 
+// Setting up servers
 var jsonRpcHttpServer = new Server(new ServerHttp(8000), {
     loopback: function(obj, callback) { callback(undefined, obj); }
 });
@@ -50,6 +52,13 @@ var jsonRpcMiddlewareServer = new Server(new ServerMiddleware(), {
 });
 app.use('/rpc', jsonRpcMiddlewareServer.transport.middleware);
 app.listen(8002);
+
+var loopback = new Loopback();
+var jsonRpcLoopbackServer = new Server(loopback, {
+    loopback: function(obj, callback) { callback(undefined, obj); }
+});
+
+// Setting up and using the clients
 
 // Either explicitly register the remote methods
 var jsonRcpHttpClient = new Client(new ClientHttp('localhost', 8000));
@@ -69,6 +78,12 @@ var jsonRpcExpressClient = new Client(new ClientHttp('localhost', 8002, { path: 
 jsonRpcExpressClient.register('loopback');
 jsonRpcExpressClient.loopback('foo', function(err, val) {
     console.log(val); // Prints 'foo'
+});
+
+new Client(loopback, {}, function(jsonRpcLoopbackClient) {
+    jsonRpcLoopbackClient.loopback('foo', function(err, val) {
+        console.log(val); // Prints 'foo'
+    });
 });
 ```
 
@@ -195,6 +210,18 @@ The Server Middleware Transport events are:
 ``message`` - This event is fired whenever a complete message is received, and the registered callbacks receive the JSON-RPC object as their only argument.
 
 ``shutdown`` - This event is fired when the transport is shutdown.
+
+#### jsonrpc.transports.shared.loopback
+
+``new jsonrpc.transports.shared.loopback()``
+
+No configuration used by the loopback object. It's still a constructor solely so you can have mutliple loopbacks in a single test suite, if needed.
+
+The Loopback Transport events are:
+
+``message`` - This event is fired whenever a message is passed into the client on its way to the server.
+
+``shutdown`` - This event is fired when the transport is "shutdown." (The method doesn't actually do anything, this just helps if your tests depend on this event.)
 
 ## Defining JSON-RPC Server Methods
 
