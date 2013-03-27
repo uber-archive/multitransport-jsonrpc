@@ -39,9 +39,8 @@ exports.failureTcp = function(test) {
     });
 };
 
-String.prototype.repeat = function( num )
-{
-        return new Array( num + 1 ).join( this );
+String.prototype.repeat = function(num) {
+        return new Array(num + 1).join(this);
 }
 
 function perf(testString, test) {
