@@ -5,7 +5,7 @@
         "Amos Barreto <amos.barreto@gmail.com>"
 	],
 	"name": "multitransport-jsonrpc",
-	"version": "0.3.6",
+	"version": "0.3.7",
 	"description": "JSON-RPC where performance matters",
     "keywords": ["json-rpc", "http", "tcp", "multitransport"],
     "homepage": "http://uber.github.com/multitransport-jsonrpc/",
