@@ -9,6 +9,7 @@ var ServerMiddleware = jsonrpc.transports.server.middleware;
 var Loopback = jsonrpc.transports.shared.loopback;
 var express = require('express');
 var http = require('http');
+var net = require('net');
 
 exports.loopbackHttp = function(test) {
     test.expect(1);
@@ -98,6 +99,66 @@ exports.loopbackExpress = function(test) {
                 test.equal(result, 'bar', 'JSON-RPC as a middleware works');
                 server.close(test.done.bind(test));
             });
+        });
+    });
+};
+
+exports.tcpServerEvents1 = function(test) {
+    test.expect(10);
+    var server = new Server(new ServerTcp(11111), {
+        loopback: function(arg, callback) { callback(null, arg); }
+    });
+    server.transport.on('connection', function(con) {
+        test.ok(con instanceof net.Socket, 'incoming connection is a socket');
+    });
+    server.transport.on('closedConnection', function(con) {
+        test.ok(con instanceof net.Socket, 'closing connection is a socket');
+    });
+    server.transport.on('listening', function() {
+        test.ok(true, 'server started correctly');
+    });
+    server.transport.on('shutdown', function() {
+        test.ok(true, 'the server was shutdown correctly');
+        test.done();
+    });
+    server.transport.on('message', function(obj, len) {
+        test.ok(obj instanceof Object, 'object received');
+        test.ok(len > 0, 'message length provided');
+    });
+    server.transport.on('outMessage', function(obj, len) {
+        test.ok(obj instanceof Object, 'object ready');
+        test.ok(len > 0, 'message length calcuated');
+    });
+    server.transport.on('retry', function() {
+        // Not implemented yet
+    });
+    server.transport.on('error', function(e) {
+        // Not implemented yet
+    });
+    var client = new Client(new ClientTcp('localhost', 11111), { autoRegister: false });
+    client.register('loopback');
+    client.loopback('foo', function(err, result) {
+        test.ok(!err, 'no error');
+        test.equal(result, 'foo', 'loopback worked');
+        client.shutdown(function() {
+            server.shutdown();
+        });
+    });
+}
+
+exports.tcpServerEvents2 = function(test) {
+    test.expect(2);
+    var server1 = new Server(new ServerTcp(11112), {
+        loopback: function(arg, callback) { callback(null, arg); }
+    });
+    server1.transport.on('listening', function() {
+        var server2 = new Server(new ServerTcp(11112, { retries: 1 }), {});
+        server2.transport.on('retry', function() {
+            test.ok(true, 'retried to connect to the specified port');
+        });
+        server2.transport.on('error', function(e) {
+            test.ok(e instanceof Error, 'received the error object after second retry was denied');
+            server1.shutdown(test.done.bind(test));
         });
     });
 };
