@@ -1,4 +1,5 @@
-var TcpTransport = require('../lib/transports/server/tcp');
+var jsonrpc = require('../lib/index');
+var TcpTransport = jsonrpc.transports.server.tcp;
 var shared = require('../lib/transports/shared/tcp');
 var net = require('net');
 

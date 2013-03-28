@@ -1,4 +1,5 @@
-var HttpTransport = require('../lib/transports/server/http');
+var jsonrpc = require('../lib/index');
+var HttpTransport = jsonrpc.transports.server.http;
 var http = require('http');
 
 exports.loopback = function(test) {
