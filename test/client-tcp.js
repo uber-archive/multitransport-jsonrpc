@@ -1,4 +1,5 @@
-var TcpTransport = require('../lib/transports/client/tcp');
+var jsonrpc = require('../lib/index');
+var TcpTransport = jsonrpc.transports.client.tcp;
 var shared = require('../lib/transports/shared/tcp');
 var net = require('net');
 
@@ -81,9 +82,7 @@ exports.glitchedConnection = function(test) {
     };
     var server = net.createServer(serverFunc);
     server.listen(23458);
-    var tcpTransport = new TcpTransport('localhost', 23458, {
-        retries: 5
-    });
+    var tcpTransport = new TcpTransport('localhost', 23458);
     tcpTransport.request({'id': 'foo'}, function(result) {
         test.equal(JSON.stringify({'id': 'foo'}), JSON.stringify(result), 'eventually received the response');
         tcpTransport.shutdown(function() {
@@ -105,4 +104,103 @@ exports.glitchedConnection = function(test) {
         server = net.createServer(serverFunc);
         server.listen(23458);
     }, 100);
+};
+
+exports.stopBuffering = function(test) {
+    test.expect(6);
+    var con, server;
+    // Create a client pointed to nowhere, telling it to stop trying requests after a while
+    // (but continue attempting to connect to the server)
+    var tcpTransport = new TcpTransport('localhost', 23459, {
+        timeout: 2*1000,
+        stopBufferingAfter: 5*1000
+    });
+    // Early messages will be attempted and eventually time out
+    tcpTransport.request({id: 'foo'}, function(result) {
+        test.ok(result instanceof Error, "Couldn't connect to the (nonexistent) server");
+        test.equal(result.message, 'Request Timed Out', 'time out error message received');
+    });
+    // Later messages will be immediately killed
+    setTimeout(function() {
+        tcpTransport.request({id: 'foo'}, function(result) {
+            test.ok(result instanceof Error, "Still can't connect to the nonexistent server");
+            test.equal(result.message, 'Connection Unavailable', 'immediately blocked by the maximum timeout time for the server');
+            var serverFunc = function(c) {
+                con = c;
+                var buffer = new Buffer('');
+                var messageLen = 0;
+                c.on('data', function(data) {
+                    buffer = Buffer.concat([buffer, data]);
+                    if(messageLen === 0) messageLen = shared.getMessageLen([data]);
+                    if(buffer.length === messageLen + 4) {
+                        if(con) {
+                            con.write(buffer);
+                            con.end();
+                        }
+                    }
+                });
+                c.on('end', function() {
+                    con = undefined;
+                });
+            };
+            server = net.createServer(serverFunc);
+            server.listen(23459);
+        });
+    }, 6*1000);
+    // After the server is started, messages will go through as expected
+    setTimeout(function() {
+        tcpTransport.request({id: 'foo'}, function(result) {
+            test.ok(result instanceof Object, 'got a result');
+            test.equal(result.id, 'foo', 'got the expected result');
+            tcpTransport.shutdown(function() {
+                server.close(test.done.bind(test));
+            });
+        });
+    }, 8*1000);
+};
+
+exports.dontStopBuffering = function(test) {
+    test.expect(6);
+    // This test tests a modification of the above test,
+    // if its told to stop buffering after a period of time of
+    // being disconnected, but then reconnects *before* that period
+    // the stopBuffering code shouldn't interfere with regular requests
+    var server;
+    var tcpTransport = new TcpTransport('localhost', 23460, {
+        timeout: 2*1000,
+        stopBufferingAfter: 8*1000
+    });
+    tcpTransport.request({id: 'foo'}, function(result) {
+        test.ok(result instanceof Error);
+        test.equal(result.message, 'Request Timed Out');
+    });
+    setTimeout(function() {
+        tcpTransport.request({id: 'foo'}, function(result) {
+            test.ok(result instanceof Object);
+            test.equal(result.id, 'foo');
+        });
+        var serverFunc = function(c) {
+            var buffer = new Buffer('');
+            var messageLen = 0;
+            c.on('data', function(data) {
+                buffer = Buffer.concat([buffer, data]);
+                if(messageLen === 0) messageLen = shared.getMessageLen([data]);
+                if(buffer.length === messageLen + 4) {
+                    c.write(buffer);
+                    c.end();
+                }
+            });
+        };
+        server = net.createServer(serverFunc);
+        server.listen(23460);
+    }, 6*1000);
+    setTimeout(function() {
+        tcpTransport.request({id: 'foo'}, function(result) {
+            test.ok(result instanceof Object);
+            test.equal(result.id, 'foo');
+            tcpTransport.shutdown(function() {
+                server.close(test.done.bind(test));
+            });
+        });
+    }, 10*1000);
 };
