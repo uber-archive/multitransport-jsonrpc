@@ -133,11 +133,13 @@ The various transports also provide events you can listen on, using the [Node.js
 
 ``config`` - The configuration settings. For the client TCP transport, these are:
 
-``timeout`` - The time, in ms, that the transport will wait for a response (default: 2 minutes)
+``timeout`` - The time, in ms, that the transport will wait for a response (default: 30 seconds)
 
-``retries`` - The number of times the client will attempt to reconnect to the server when a connection is dropped (default: 0)
+``retries`` - The number of times the client will attempt to reconnect to the server when a connection is dropped (default: Infinity)
 
 ``retryInterval`` - The time, in ms, that the client will wait before reconnect attempts (default: 250ms)
+
+``stopBufferingAfter`` - The time, in ms, that the client will return errors immediately to the caller *while still attempting to reconnect to the server*. If 0, it will never immediately return errors (default: 0)
 
 The Client TCP Transport events are:
 
