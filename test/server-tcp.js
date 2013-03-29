@@ -93,3 +93,26 @@ exports.retry = function(test) {
         }, 50);
     });
 };
+
+exports.dontSendAfterClose = function(test) {
+    test.expect(1);
+    var tcpTransport = new TcpTransport(2222);
+    tcpTransport.handler = function(jsonObj, callback) {
+        // The timeout should cause it to try to send the message after the client disconnected
+        // The server should not throw an error in this condition
+        setTimeout(callback.bind(this, jsonObj), 3000);
+    };
+    tcpTransport.on('listening', function() {
+        var con = net.connect({
+            port: 2222,
+            host: 'localhost'
+        }, function() {
+            con.write(shared.formatMessage({hello: 'world'}));
+            test.ok(true, 'wrote the message to the server and killed the connection');
+            con.destroy();
+        });
+    });
+    setTimeout(function() {
+        tcpTransport.shutdown(test.done.bind(test));
+    }, 4000);
+};
