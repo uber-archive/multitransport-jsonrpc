@@ -94,4 +94,26 @@
     <span class="p">});</span>
 <span class="p">};</span>
 
-</pre></div></td></tr></tbody></table><div id="generated">generated Thu Mar 28 2013 10:32:34 GMT-0700 (PDT)  </div></div></body></html>
+<span class="nx">exports</span><span class="p">.</span><span class="nx">dontSendAfterClose</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">test</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">test</span><span class="p">.</span><span class="nx">expect</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+    <span class="kd">var</span> <span class="nx">tcpTransport</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">TcpTransport</span><span class="p">(</span><span class="mi">2222</span><span class="p">);</span>
+    <span class="nx">tcpTransport</span><span class="p">.</span><span class="nx">handler</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">jsonObj</span><span class="p">,</span> <span class="nx">callback</span><span class="p">)</span> <span class="p">{</span></pre></div></td></tr><tr id="section-3"><td class="docs"><div class="pilwrap"><a href="#section-3" class="pilcrow">&#182;</a></div><p>The timeout should cause it to try to send the message after the client disconnected
+The server should not throw an error in this condition</p>
+</td><td class="code"><div class="highlight"><pre>        <span class="nx">setTimeout</span><span class="p">(</span><span class="nx">callback</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="nx">jsonObj</span><span class="p">),</span> <span class="mi">3000</span><span class="p">);</span>
+    <span class="p">};</span>
+    <span class="nx">tcpTransport</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;listening&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">con</span> <span class="o">=</span> <span class="nx">net</span><span class="p">.</span><span class="nx">connect</span><span class="p">({</span>
+            <span class="nx">port</span><span class="o">:</span> <span class="mi">2222</span><span class="p">,</span>
+            <span class="nx">host</span><span class="o">:</span> <span class="s1">&#39;localhost&#39;</span>
+        <span class="p">},</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+            <span class="nx">con</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="nx">shared</span><span class="p">.</span><span class="nx">formatMessage</span><span class="p">({</span><span class="nx">hello</span><span class="o">:</span> <span class="s1">&#39;world&#39;</span><span class="p">}));</span>
+            <span class="nx">test</span><span class="p">.</span><span class="nx">ok</span><span class="p">(</span><span class="kc">true</span><span class="p">,</span> <span class="s1">&#39;wrote the message to the server and killed the connection&#39;</span><span class="p">);</span>
+            <span class="nx">con</span><span class="p">.</span><span class="nx">destroy</span><span class="p">();</span>
+        <span class="p">});</span>
+    <span class="p">});</span>
+    <span class="nx">setTimeout</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="nx">tcpTransport</span><span class="p">.</span><span class="nx">shutdown</span><span class="p">(</span><span class="nx">test</span><span class="p">.</span><span class="nx">done</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="nx">test</span><span class="p">));</span>
+    <span class="p">},</span> <span class="mi">4000</span><span class="p">);</span>
+<span class="p">};</span>
+
+</pre></div></td></tr></tbody></table><div id="generated">generated Mon Apr 01 2013 10:14:56 GMT-0700 (PDT)  </div></div></body></html>
