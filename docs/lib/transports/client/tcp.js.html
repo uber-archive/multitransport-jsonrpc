@@ -5,7 +5,7 @@
 <span class="kd">var</span> <span class="nx">shared</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../shared/tcp&#39;</span><span class="p">);</span></pre></div></td></tr><tr id="section-2"><td class="docs"><div class="pilwrap"><a href="#section-2" class="pilcrow">&#182;</a></div><p>Client Transport's data handling function, bound to the TcpTransport
 instance when attached to the data event handler</p>
 </td><td class="code"><div class="highlight"><pre><span class="kd">function</span> <span class="nx">onDataCallback</span><span class="p">(</span><span class="nx">message</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">if</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">requests</span><span class="p">[</span><span class="nx">message</span><span class="p">.</span><span class="nx">id</span><span class="p">])</span> <span class="p">{</span>
+    <span class="k">if</span><span class="p">(</span><span class="nx">message</span> <span class="o">&amp;&amp;</span> <span class="k">this</span><span class="p">.</span><span class="nx">requests</span><span class="p">[</span><span class="nx">message</span><span class="p">.</span><span class="nx">id</span><span class="p">])</span> <span class="p">{</span>
         <span class="k">this</span><span class="p">.</span><span class="nx">requests</span><span class="p">[</span><span class="nx">message</span><span class="p">.</span><span class="nx">id</span><span class="p">].</span><span class="nx">callback</span><span class="p">(</span><span class="nx">message</span><span class="p">);</span>
         <span class="k">delete</span> <span class="k">this</span><span class="p">.</span><span class="nx">requests</span><span class="p">[</span><span class="nx">message</span><span class="p">.</span><span class="nx">id</span><span class="p">];</span>
     <span class="p">}</span>
@@ -136,4 +136,4 @@ connection is ended, and a callback, if any, is called.</p>
 <span class="p">};</span></pre></div></td></tr><tr id="section-26"><td class="docs"><div class="pilwrap"><a href="#section-26" class="pilcrow">&#182;</a></div><p>Export the client TcpTransport</p>
 </td><td class="code"><div class="highlight"><pre><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">TcpTransport</span><span class="p">;</span>
 
-</pre></div></td></tr></tbody></table><div id="generated">generated Mon Apr 01 2013 10:14:53 GMT-0700 (PDT)  </div></div></body></html>
+</pre></div></td></tr></tbody></table><div id="generated">generated Mon Apr 08 2013 15:27:45 GMT-0700 (PDT)  </div></div></body></html>
