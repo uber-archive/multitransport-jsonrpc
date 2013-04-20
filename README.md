@@ -19,7 +19,11 @@ The TCP transport is nearly 25x faster for small messages than for large.
 
     npm install multitransport-jsonrpc
 
-## Usage
+If you want to use the ``jsonrpc-repl`` binary, also
+
+    npm install -g multitransport-jsonrpc
+
+## Library Usage
 
 ```js
 var jsonrpc = require('multitransport-jsonrpc'); // Get the multitransport JSON-RPC suite
@@ -259,6 +263,20 @@ On the client side, you can only use the methods in an asynchronous way. All ass
 ```js
 jsonRpcClient.request("shutdown", ["arg1", "arg2"], callbackFunc);
 ```
+
+# Using the jsonrpc-repl binary
+
+    Usage: jsonrpc-repl [options]
+    
+    Options:
+    
+        -h, --help               output usage information
+        -s, --server <hostname>  The hostname the server is located on. (Default: "localhost")
+        -p, --port <portnumber>  The port the server is bound to. (Default: 80)
+        -t, --tcp                Connects to the server via TCP instead of HTTP (Default: false)
+
+The ``jsonrpc-repl`` dumps you into a [Node.js repl](http://nodejs.org/api/repl.html) with some bootstrapping done on connecting you to the RPC server and getting a list of valid server methods. You can access them with the ``rpc`` object in the exact same way as described above in the "Using JSON-RPC Client Methods" section. 
+
 
 ## Creating A New Transport
 
