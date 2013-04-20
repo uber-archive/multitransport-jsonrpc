@@ -1,0 +1,27 @@
+#!/usr/bin/env node
+
+var repl = require('repl');
+var commander = require('commander');
+var l = require('lambda-js');
+var jsonrpc = require('../lib/index');
+var Client = jsonrpc.client;
+var TcpTransport = jsonrpc.transports.client.tcp;
+var HttpTransport = jsonrpc.transports.client.http;
+
+commander
+    .option('-s, --server <hostname>', 'The hostname the server is located on. (Default: "localhost")', 'localhost')
+    .option('-p, --port <portnumber>', 'The port the server is bound to. (Default: 80)', 80)
+    .option('-t, --tcp', 'Connects to the server via TCP instead of HTTP (Default: false)', false)
+    .parse(process.argv);
+
+var Transport = commander.tcp ? TcpTransport : HttpTransport;
+
+new Client(new Transport(commander.server, commander.port), {}, function(client) {
+    console.log('Connected to ' + commander.server + ':' + commander.port + ' over ' + (commander.tcp ? 'TCP' : 'HTTP'));
+    console.log('The server reported the following methods:');
+    console.log(Object.getOwnPropertyNames(client).filter(l('name', 'name !== "transport"')).join(', '));
+    console.log('Access them with `rpc.foo(arg1, arg2, callbackFunction)`');
+    var r = repl.start('jsonrpc> ');
+    r.context.rpc = client;
+    r.on('exit', process.exit.bind(process));
+});
