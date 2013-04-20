@@ -12,6 +12,8 @@ sections:
         name: Define Server Methods
     -   id: useClientMethods
         name: Use Client Methods
+    -   id: jsonRpcRepl
+        name: JSON-RPC REPL Binary
     -   id: newTransports
         name: Creating Transports
     -   id: license
@@ -39,7 +41,12 @@ HTTP took 17924ms, 557.911180540058 reqs/sec
 <pre><code>npm install multitransport-jsonrpc
 </code></pre>
 
-<h2>Usage</h2>
+<p>If you want to use the <code>jsonrpc-repl</code> binary, also</p>
+
+<pre><code>npm install -g multitransport-jsonrpc
+</code></pre>
+
+<h2>Library Usage</h2>
 
 {% highlight js %}
 var jsonrpc = require('multitransport-jsonrpc'); // Get the multitransport JSON-RPC suite
@@ -49,10 +56,13 @@ var Client = jsonrpc.client; // The client constructor function
 
 var ServerHttp = jsonrpc.transports.server.http; // The server HTTP transport constructor function
 var ServerTcp = jsonrpc.transports.server.tcp; // The server TCP transport constructor function
+var ServerMiddleware = jsonrpc.transports.server.middleware; // The server Middleware transport constructor function (for Express/Connect)
+var Loopback = jsonrpc.transports.shared.loopback; // The Loopback transport for mocking clients/servers in tests
 
 var ClientHttp = jsonrpc.transports.client.http;
 var ClientTcp = jsonrpc.transports.client.tcp;
 
+// Setting up servers
 var jsonRpcHttpServer = new Server(new ServerHttp(8000), {
     loopback: function(obj, callback) { callback(undefined, obj); }
 });
@@ -69,6 +79,13 @@ var jsonRpcMiddlewareServer = new Server(new ServerMiddleware(), {
 });
 app.use('/rpc', jsonRpcMiddlewareServer.transport.middleware);
 app.listen(8002);
+
+var loopback = new Loopback();
+var jsonRpcLoopbackServer = new Server(loopback, {
+    loopback: function(obj, callback) { callback(undefined, obj); }
+});
+
+// Setting up and using the clients
 
 // Either explicitly register the remote methods
 var jsonRcpHttpClient = new Client(new ClientHttp('localhost', 8000));
@@ -88,6 +105,12 @@ var jsonRpcExpressClient = new Client(new ClientHttp('localhost', 8002, { path: 
 jsonRpcExpressClient.register('loopback');
 jsonRpcExpressClient.loopback('foo', function(err, val) {
     console.log(val); // Prints 'foo'
+});
+
+new Client(loopback, {}, function(jsonRpcLoopbackClient) {
+    jsonRpcLoopbackClient.loopback('foo', function(err, val) {
+        console.log(val); // Prints 'foo'
+    });
 });
 {% endhighlight %}
 
@@ -137,11 +160,13 @@ jsonRpcExpressClient.loopback('foo', function(err, val) {
 
 <p><code>config</code> - The configuration settings. For the client TCP transport, these are:</p>
 
-<p><code>timeout</code> - The time, in ms, that the transport will wait for a response (default: 2 minutes)</p>
+<p><code>timeout</code> - The time, in ms, that the transport will wait for a response (default: 30 seconds)</p>
 
-<p><code>retries</code> - The number of times the client will attempt to reconnect to the server when a connection is dropped (default: 0)</p>
+<p><code>retries</code> - The number of times the client will attempt to reconnect to the server when a connection is dropped (default: Infinity)</p>
 
 <p><code>retryInterval</code> - The time, in ms, that the client will wait before reconnect attempts (default: 250ms)</p>
+
+<p><code>stopBufferingAfter</code> - The time, in ms, that the client will return errors immediately to the caller <em>while still attempting to reconnect to the server</em>. If 0, it will never immediately return errors (default: 0)</p>
 
 <p>The Client TCP Transport events are:</p>
 
@@ -215,6 +240,18 @@ jsonRpcExpressClient.loopback('foo', function(err, val) {
 
 <p><code>shutdown</code> - This event is fired when the transport is shutdown.</p>
 
+<h4>jsonrpc.transports.shared.loopback</h4>
+
+<p><code>new jsonrpc.transports.shared.loopback()</code></p>
+
+<p>No configuration used by the loopback object. It's still a constructor solely so you can have mutliple loopbacks in a single test suite, if needed.</p>
+
+<p>The Loopback Transport events are:</p>
+
+<p><code>message</code> - This event is fired whenever a message is passed into the client on its way to the server.</p>
+
+<p><code>shutdown</code> - This event is fired when the transport is "shutdown." (The method doesn't actually do anything, this just helps if your tests depend on this event.)</p>
+
 <h2 id="defineServerMethods">Defining JSON-RPC Server Methods</h2>
 
 <p>By default, JSON-RPC server methods are asynchronous, taking a callback function as the last argument. The callback function assumes the first argument it receives is an error and the second argument is a result, in the Node.js style.</p>
@@ -249,6 +286,20 @@ var blockingFoo = blocking(function(bar, baz) {
 {% highlight js %}
 jsonRpcClient.request("shutdown", ["arg1", "arg2"], callbackFunc);
 {% endhighlight %}
+
+<h1 id="jsonRpcRepl">Using the jsonrpc-repl binary</h1>
+
+<pre><code>Usage: jsonrpc-repl [options]
+
+Options:
+
+    -h, --help               output usage information
+    -s, --server &lt;hostname&gt;  The hostname the server is located on. (Default: "localhost")
+    -p, --port &lt;portnumber&gt;  The port the server is bound to. (Default: 80)
+    -t, --tcp                Connects to the server via TCP instead of HTTP (Default: false)
+</code></pre>
+
+<p>The <code>jsonrpc-repl</code> dumps you into a <a href="http://nodejs.org/api/repl.html">Node.js repl</a> with some bootstrapping done on connecting you to the RPC server and getting a list of valid server methods. You can access them with the <code>rpc</code> object in the exact same way as described above in the "Using JSON-RPC Client Methods" section. </p>
 
 <h2 id="newTransports">Creating A New Transport</h2>
 
