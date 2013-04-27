@@ -20,6 +20,7 @@ exports.loopbackHttp = function(test) {
         c.loopback('foo', function(err, result) {
             test.equal('foo', result, 'loopback works as expected');
             server.transport.server.close(function() {
+                client.shutdown();
                 test.done();
             });
         });
@@ -32,7 +33,7 @@ exports.failureTcp = function(test) {
         failure: function(arg, callback) { callback(new Error("I have no idea what I'm doing.")); }
     });
     var client = new Client(new ClientTcp('localhost', 44444), {}, function(c) {
-        c.failure('foo', function(err, result) {
+        c.failure('foo', function(err) {
             test.ok(!!err, 'error exists');
             test.equal(err.message, "I have no idea what I'm doing.", 'error message transmitted successfully.');
             c.shutdown(function() {
@@ -56,9 +57,10 @@ exports.loopbackLoopback = function(test) {
     client.register(['loopback', 'failure']);
     client.loopback('foo', function(err, result) {
         test.equal('foo', result, 'loopback works as expected');
-        client.failure('foo', function(err, result) {
+        client.failure('foo', function(err) {
             test.ok(!!err, 'error exists');
             test.equal(err.message, "I have no idea what I'm doing.", 'error message transmitted successfully.');
+            server.shutdown();
             test.done();
         });
     });
@@ -80,8 +82,8 @@ exports.loopbackExpress = function(test) {
 
     //app.listen(55555); // Express 3.0 removed the ability to cleanly shutdown an express server
     // The following is copied from the definition of app.listen()
-    var server = http.createServer(app);
-    server.listen(55555);
+    var httpServer = http.createServer(app);
+    httpServer.listen(55555);
 
     var client = new Client(new ClientHttp('localhost', 55555, { path: '/rpc' }));
     client.register('loopback');
@@ -97,7 +99,7 @@ exports.loopbackExpress = function(test) {
             test.equal(data, 'bar', 'regular http requests work');
             client.loopback('bar', function(err, result) {
                 test.equal(result, 'bar', 'JSON-RPC as a middleware works');
-                server.close(test.done.bind(test));
+                httpServer.close(test.done.bind(test));
             });
         });
     });
@@ -132,7 +134,7 @@ exports.tcpServerEvents1 = function(test) {
     server.transport.on('retry', function() {
         // Not implemented yet
     });
-    server.transport.on('error', function(e) {
+    server.transport.on('error', function() {
         // Not implemented yet
     });
     var client = new Client(new ClientTcp('localhost', 11111), { autoRegister: false });
@@ -144,7 +146,7 @@ exports.tcpServerEvents1 = function(test) {
             server.shutdown();
         });
     });
-}
+};
 
 exports.tcpServerEvents2 = function(test) {
     test.expect(2);
@@ -164,8 +166,8 @@ exports.tcpServerEvents2 = function(test) {
 };
 
 String.prototype.repeat = function(num) {
-        return new Array(num + 1).join(this);
-}
+    return new Array(num + 1).join(this);
+};
 
 function perf(testString, test) {
     test.expect(2);
@@ -180,6 +182,7 @@ function perf(testString, test) {
     tcpClient.register('loopback');
     var tcpCount = 0, tcpStart = new Date().getTime(), tcpEnd;
     for(var i = 0; i < numMessages; i++) {
+        /* jshint loopfunc: true */
         tcpClient.loopback(testString || i, function() {
             tcpCount++;
             if(tcpCount === numMessages) {
@@ -197,6 +200,7 @@ function perf(testString, test) {
         httpClient.register('loopback');
         var httpCount = 0, httpStart = new Date().getTime(), httpEnd;
         for(var i = 0; i < numMessages; i++) {
+            /* jshint loopfunc: true */
             httpClient.loopback(i, function() {
                 httpCount++;
                 if(httpCount === numMessages) {
@@ -214,10 +218,10 @@ function perf(testString, test) {
             });
         }
     }
-};
+}
 
-exports.perf_simple = perf.bind(null, null);
-exports.perf_100 = perf.bind(null, 'a'.repeat(100));
-exports.perf_1000 = perf.bind(null, 'a'.repeat(1000));
-exports.perf_10000 = perf.bind(null, 'a'.repeat(10000));
-exports.perf_100000 = perf.bind(null, 'a'.repeat(100000));
+exports.perfSimple = perf.bind(null, null);
+exports.perf100 = perf.bind(null, 'a'.repeat(100));
+exports.perf1000 = perf.bind(null, 'a'.repeat(1000));
+exports.perf10000 = perf.bind(null, 'a'.repeat(10000));
+exports.perf100000 = perf.bind(null, 'a'.repeat(100000));

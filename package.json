@@ -26,10 +26,12 @@
     "devDependencies": {
         "nodeunit": "*",
         "docco-husky": "*",
-        "express": "*"
+        "express": "*",
+        "jshint": "*"
     },
     "scripts": {
         "realpublish": "./prepublish.sh",
-        "test": "nodeunit test/*.js"
+        "jshint": "test/jshint.sh",
+        "test": "npm run jshint && nodeunit test/*.js"
     }
 }

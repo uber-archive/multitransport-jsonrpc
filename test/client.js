@@ -3,6 +3,7 @@ var HttpTransport = jsonrpc.transports.client.http;
 var TcpTransport = jsonrpc.transports.client.tcp;
 var JSONRPCclient = jsonrpc.client;
 var shared = require('../lib/transports/shared/tcp');
+var l = require('lambda-js');
 var http = require('http');
 var net = require('net');
 
@@ -34,7 +35,7 @@ exports.loopbackHttp = function(test) {
         test.equal('bar', result, 'Looped-back correctly');
         server.close(function() {
             test.done();
-        })
+        });
     });
 };
 
@@ -57,11 +58,7 @@ exports.failureTcp = function(test) {
                         id: obj && obj.id,
                         error: "I have no idea what I'm doing."
                     }));
-                    bufferLen = buffers.map(function(buffer) {
-                        return buffer.length;
-                    }).reduce(function(fullLen, currLen) {
-                        return fullLen + currLen;
-                    }, 0);
+                    bufferLen = buffers.map(l('buffer', 'buffer.length')).reduce(l('fullLen, currLen', 'fullLen + currLen'), 0);
                     messageLen = shared.getMessageLen(buffers);
                 }
             }
@@ -70,7 +67,7 @@ exports.failureTcp = function(test) {
     server.listen(11111);
     var jsonRpcClient = new JSONRPCclient(new TcpTransport('localhost', 11111));
     jsonRpcClient.register('foo');
-    jsonRpcClient.foo('bar', function(err, result) {
+    jsonRpcClient.foo('bar', function(err) {
         test.ok(!!err, 'error exists');
         test.equal("I have no idea what I'm doing.", err.message, 'The error message was received correctly');
         jsonRpcClient.transport.con.end();
