@@ -4,6 +4,7 @@
 <span class="kd">var</span> <span class="nx">TcpTransport</span> <span class="o">=</span> <span class="nx">jsonrpc</span><span class="p">.</span><span class="nx">transports</span><span class="p">.</span><span class="nx">client</span><span class="p">.</span><span class="nx">tcp</span><span class="p">;</span>
 <span class="kd">var</span> <span class="nx">JSONRPCclient</span> <span class="o">=</span> <span class="nx">jsonrpc</span><span class="p">.</span><span class="nx">client</span><span class="p">;</span>
 <span class="kd">var</span> <span class="nx">shared</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../lib/transports/shared/tcp&#39;</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">l</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;lambda-js&#39;</span><span class="p">);</span>
 <span class="kd">var</span> <span class="nx">http</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;http&#39;</span><span class="p">);</span>
 <span class="kd">var</span> <span class="nx">net</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;net&#39;</span><span class="p">);</span>
 
@@ -35,7 +36,7 @@
         <span class="nx">test</span><span class="p">.</span><span class="nx">equal</span><span class="p">(</span><span class="s1">&#39;bar&#39;</span><span class="p">,</span> <span class="nx">result</span><span class="p">,</span> <span class="s1">&#39;Looped-back correctly&#39;</span><span class="p">);</span>
         <span class="nx">server</span><span class="p">.</span><span class="nx">close</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
             <span class="nx">test</span><span class="p">.</span><span class="nx">done</span><span class="p">();</span>
-        <span class="p">})</span>
+        <span class="p">});</span>
     <span class="p">});</span>
 <span class="p">};</span>
 
@@ -58,11 +59,7 @@
                         <span class="nx">id</span><span class="o">:</span> <span class="nx">obj</span> <span class="o">&amp;&amp;</span> <span class="nx">obj</span><span class="p">.</span><span class="nx">id</span><span class="p">,</span>
                         <span class="nx">error</span><span class="o">:</span> <span class="s2">&quot;I have no idea what I&#39;m doing.&quot;</span>
                     <span class="p">}));</span>
-                    <span class="nx">bufferLen</span> <span class="o">=</span> <span class="nx">buffers</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">buffer</span><span class="p">)</span> <span class="p">{</span>
-                        <span class="k">return</span> <span class="nx">buffer</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span>
-                    <span class="p">}).</span><span class="nx">reduce</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">fullLen</span><span class="p">,</span> <span class="nx">currLen</span><span class="p">)</span> <span class="p">{</span>
-                        <span class="k">return</span> <span class="nx">fullLen</span> <span class="o">+</span> <span class="nx">currLen</span><span class="p">;</span>
-                    <span class="p">},</span> <span class="mi">0</span><span class="p">);</span>
+                    <span class="nx">bufferLen</span> <span class="o">=</span> <span class="nx">buffers</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">l</span><span class="p">(</span><span class="s1">&#39;buffer&#39;</span><span class="p">,</span> <span class="s1">&#39;buffer.length&#39;</span><span class="p">)).</span><span class="nx">reduce</span><span class="p">(</span><span class="nx">l</span><span class="p">(</span><span class="s1">&#39;fullLen, currLen&#39;</span><span class="p">,</span> <span class="s1">&#39;fullLen + currLen&#39;</span><span class="p">),</span> <span class="mi">0</span><span class="p">);</span>
                     <span class="nx">messageLen</span> <span class="o">=</span> <span class="nx">shared</span><span class="p">.</span><span class="nx">getMessageLen</span><span class="p">(</span><span class="nx">buffers</span><span class="p">);</span>
                 <span class="p">}</span>
             <span class="p">}</span>
@@ -71,7 +68,7 @@
     <span class="nx">server</span><span class="p">.</span><span class="nx">listen</span><span class="p">(</span><span class="mi">11111</span><span class="p">);</span>
     <span class="kd">var</span> <span class="nx">jsonRpcClient</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">JSONRPCclient</span><span class="p">(</span><span class="k">new</span> <span class="nx">TcpTransport</span><span class="p">(</span><span class="s1">&#39;localhost&#39;</span><span class="p">,</span> <span class="mi">11111</span><span class="p">));</span>
     <span class="nx">jsonRpcClient</span><span class="p">.</span><span class="nx">register</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">);</span>
-    <span class="nx">jsonRpcClient</span><span class="p">.</span><span class="nx">foo</span><span class="p">(</span><span class="s1">&#39;bar&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">result</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">jsonRpcClient</span><span class="p">.</span><span class="nx">foo</span><span class="p">(</span><span class="s1">&#39;bar&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
         <span class="nx">test</span><span class="p">.</span><span class="nx">ok</span><span class="p">(</span><span class="o">!!</span><span class="nx">err</span><span class="p">,</span> <span class="s1">&#39;error exists&#39;</span><span class="p">);</span>
         <span class="nx">test</span><span class="p">.</span><span class="nx">equal</span><span class="p">(</span><span class="s2">&quot;I have no idea what I&#39;m doing.&quot;</span><span class="p">,</span> <span class="nx">err</span><span class="p">.</span><span class="nx">message</span><span class="p">,</span> <span class="s1">&#39;The error message was received correctly&#39;</span><span class="p">);</span>
         <span class="nx">jsonRpcClient</span><span class="p">.</span><span class="nx">transport</span><span class="p">.</span><span class="nx">con</span><span class="p">.</span><span class="nx">end</span><span class="p">();</span>
@@ -81,4 +78,4 @@
     <span class="p">});</span>
 <span class="p">};</span>
 
-</pre></div></td></tr></tbody></table><div id="generated">generated Wed Apr 24 2013 14:37:08 GMT-0700 (PDT)  </div></div></body></html>
+</pre></div></td></tr></tbody></table><div id="generated">generated Mon Apr 29 2013 08:16:40 GMT-0700 (PDT)  </div></div></body></html>

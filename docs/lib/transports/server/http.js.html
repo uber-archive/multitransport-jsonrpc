@@ -18,7 +18,7 @@ result to the callback function</p>
 </td><td class="code"><div class="highlight"><pre>        <span class="kd">var</span> <span class="nx">r</span> <span class="o">=</span> <span class="nx">q</span><span class="p">.</span><span class="nx">ns</span><span class="p">()().</span><span class="nx">reduce</span><span class="p">(</span><span class="nx">l</span><span class="p">(</span><span class="s1">&#39;cum, cur&#39;</span><span class="p">,</span> <span class="s1">&#39;cum + cur&#39;</span><span class="p">),</span> <span class="kd">function</span><span class="p">(</span><span class="nx">result</span><span class="p">)</span> <span class="p">{</span></pre></div></td></tr><tr id="section-7"><td class="docs"><div class="pilwrap"><a href="#section-7" class="pilcrow">&#182;</a></div><p>The result is assumed to be JSON and is parsed and
 passed along to the request handler, whose results are passed
 to the responseHandler</p>
-</td><td class="code"><div class="highlight"><pre>            <span class="kd">var</span> <span class="nx">json</span> <span class="o">=</span> <span class="kc">undefined</span><span class="p">;</span>
+</td><td class="code"><div class="highlight"><pre>            <span class="kd">var</span> <span class="nx">json</span><span class="p">;</span>
             <span class="k">try</span> <span class="p">{</span>
                 <span class="nx">json</span> <span class="o">=</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">result</span><span class="p">);</span>
             <span class="p">}</span> <span class="k">catch</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span></pre></div></td></tr><tr id="section-8"><td class="docs"><div class="pilwrap"><a href="#section-8" class="pilcrow">&#182;</a></div><p>Literally don't need to do anything at the moment here.</p>
@@ -36,7 +36,7 @@ to the responseHandler</p>
     <span class="k">this</span><span class="p">.</span><span class="nx">server</span><span class="p">.</span><span class="nx">listen</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">port</span><span class="p">);</span>
 
     <span class="k">return</span> <span class="k">this</span><span class="p">;</span>
-<span class="p">};</span></pre></div></td></tr><tr id="section-10"><td class="docs"><div class="pilwrap"><a href="#section-10" class="pilcrow">&#182;</a></div><p>Attach the EventEmitter prototype to the prototype chain</p>
+<span class="p">}</span></pre></div></td></tr><tr id="section-10"><td class="docs"><div class="pilwrap"><a href="#section-10" class="pilcrow">&#182;</a></div><p>Attach the EventEmitter prototype to the prototype chain</p>
 </td><td class="code"><div class="highlight"><pre><span class="nx">util</span><span class="p">.</span><span class="nx">inherits</span><span class="p">(</span><span class="nx">HttpTransport</span><span class="p">,</span> <span class="nx">EventEmitter</span><span class="p">);</span></pre></div></td></tr><tr id="section-11"><td class="docs"><div class="pilwrap"><a href="#section-11" class="pilcrow">&#182;</a></div><p>The responseHandler gets a response object and the return object, stringifies
 the return object and sends it down to the client with the appropriate HTTP
 headers</p>
@@ -56,4 +56,4 @@ and HTTP transports have a more uniform API)</p>
 <span class="p">};</span></pre></div></td></tr><tr id="section-13"><td class="docs"><div class="pilwrap"><a href="#section-13" class="pilcrow">&#182;</a></div><p>Export the Server HTTP transport</p>
 </td><td class="code"><div class="highlight"><pre><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">HttpTransport</span><span class="p">;</span>
 
-</pre></div></td></tr></tbody></table><div id="generated">generated Wed Apr 24 2013 14:37:07 GMT-0700 (PDT)  </div></div></body></html>
+</pre></div></td></tr></tbody></table><div id="generated">generated Mon Apr 29 2013 08:16:38 GMT-0700 (PDT)  </div></div></body></html>
