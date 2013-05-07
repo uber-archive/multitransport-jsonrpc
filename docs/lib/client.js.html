@@ -49,7 +49,9 @@ remote method.</p>
         <span class="k">if</span><span class="p">(</span><span class="nx">callback</span> <span class="k">instanceof</span> <span class="nb">Function</span><span class="p">)</span> <span class="p">{</span>
             <span class="k">if</span><span class="p">(</span><span class="nx">response</span><span class="p">.</span><span class="nx">error</span><span class="p">)</span> <span class="p">{</span>
                 <span class="k">if</span><span class="p">(</span><span class="nx">response</span><span class="p">.</span><span class="nx">error</span><span class="p">.</span><span class="nx">message</span><span class="p">)</span> <span class="p">{</span>
-                    <span class="nx">callback</span><span class="p">(</span><span class="k">new</span> <span class="nb">Error</span><span class="p">(</span><span class="nx">response</span><span class="p">.</span><span class="nx">error</span><span class="p">.</span><span class="nx">message</span><span class="p">));</span>
+                    <span class="kd">var</span> <span class="nx">err</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Error</span><span class="p">(</span><span class="nx">response</span><span class="p">.</span><span class="nx">error</span><span class="p">.</span><span class="nx">message</span><span class="p">);</span>
+                    <span class="nx">err</span><span class="p">.</span><span class="nx">stack</span> <span class="o">=</span> <span class="nx">response</span><span class="p">.</span><span class="nx">error</span><span class="p">.</span><span class="nx">stack</span><span class="p">;</span>
+                    <span class="nx">callback</span><span class="p">(</span><span class="nx">err</span><span class="p">);</span>
                 <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
                     <span class="nx">callback</span><span class="p">(</span><span class="k">new</span> <span class="nb">Error</span><span class="p">(</span><span class="nx">response</span><span class="p">.</span><span class="nx">error</span><span class="p">));</span>
                 <span class="p">}</span>
@@ -85,4 +87,4 @@ method names and directly modifies the</p>
 
 <span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">JSONRPC</span><span class="p">;</span>
 
-</pre></div></td></tr></tbody></table><div id="generated">generated Mon Apr 29 2013 08:16:36 GMT-0700 (PDT)  </div></div></body></html>
+</pre></div></td></tr></tbody></table><div id="generated">generated Mon May 06 2013 19:22:56 GMT-0700 (PDT)  </div></div></body></html>
