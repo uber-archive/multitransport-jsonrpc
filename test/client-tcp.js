@@ -2,6 +2,12 @@ var jsonrpc = require('../lib/index');
 var TcpTransport = jsonrpc.transports.client.tcp;
 var shared = require('../lib/transports/shared/tcp');
 var net = require('net');
+var async = require('async');
+
+var Server = jsonrpc.server;
+var ServerTcp = jsonrpc.transports.server.tcp;
+var Client = jsonrpc.client;
+var ClientTcp = jsonrpc.transports.client.tcp;
 
 exports.loopback = function(test) {
     test.expect(1);
@@ -18,7 +24,9 @@ exports.loopback = function(test) {
         });
     });
     server.listen(23456);
-    var tcpTransport = new TcpTransport('localhost', 23456);
+    var tcpTransport = new TcpTransport('localhost', 23456, {
+        logger: console.log
+    });
     tcpTransport.request('foo', function(result) {
         test.equal('foo', result, 'loopback worked correctly');
         tcpTransport.shutdown(function() {
@@ -203,4 +211,64 @@ exports.dontStopBuffering = function(test) {
             });
         });
     }, 10*1000);
+};
+
+exports.reconnect = function(test) {
+    test.expect(4);
+    var tcpServer;
+
+    var tcpClient;
+
+    var sendRequest = function (done) {
+        if (!tcpClient) {
+            tcpClient = new Client(new ClientTcp('localhost', 23458, {
+                stopBufferingAfter: 30*1000,
+                logger: console.log.bind(console)
+            }));
+            tcpClient.register('loopback');
+        }
+        tcpClient.loopback({'id': 'foo'}, function(err, result) {
+            console.log('got response');
+            console.dir(arguments);
+            test.equal(JSON.stringify({'id': 'foo'}), JSON.stringify(result), 'received the response');
+            done();
+        });
+    };
+
+    var createServer = function (done) {
+        console.log('create server');
+        tcpServer = new Server(new ServerTcp(23458), {
+            loopback: function(arg, callback) { callback(null, arg); }
+        }, done);
+        tcpServer.transport.on('listening', done);
+    };
+    var killServer = function (done) {
+        console.log('kill server');
+        tcpServer.shutdown(done);
+    };
+
+    async.series([
+        //sendRequest,
+        function(done) { setTimeout(done, Math.random() * 5000); },
+        createServer,
+        sendRequest,
+        killServer,
+        function(done) { setTimeout(done, Math.random() * 5000); },
+        createServer,
+        sendRequest,
+        killServer,
+        function(done) { setTimeout(done, Math.random() * 5000); },
+        createServer,
+        sendRequest,
+        killServer,
+        function(done) { setTimeout(done, Math.random() * 5000); },
+        createServer,
+        sendRequest,
+        killServer
+    ], function (err) {
+        console.dir(err);
+        tcpClient.shutdown();
+        test.done();
+    });
+
 };
