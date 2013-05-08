@@ -3,6 +3,12 @@
 <span class="kd">var</span> <span class="nx">TcpTransport</span> <span class="o">=</span> <span class="nx">jsonrpc</span><span class="p">.</span><span class="nx">transports</span><span class="p">.</span><span class="nx">client</span><span class="p">.</span><span class="nx">tcp</span><span class="p">;</span>
 <span class="kd">var</span> <span class="nx">shared</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../lib/transports/shared/tcp&#39;</span><span class="p">);</span>
 <span class="kd">var</span> <span class="nx">net</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;net&#39;</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">async</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;async&#39;</span><span class="p">);</span>
+
+<span class="kd">var</span> <span class="nx">Server</span> <span class="o">=</span> <span class="nx">jsonrpc</span><span class="p">.</span><span class="nx">server</span><span class="p">;</span>
+<span class="kd">var</span> <span class="nx">ServerTcp</span> <span class="o">=</span> <span class="nx">jsonrpc</span><span class="p">.</span><span class="nx">transports</span><span class="p">.</span><span class="nx">server</span><span class="p">.</span><span class="nx">tcp</span><span class="p">;</span>
+<span class="kd">var</span> <span class="nx">Client</span> <span class="o">=</span> <span class="nx">jsonrpc</span><span class="p">.</span><span class="nx">client</span><span class="p">;</span>
+<span class="kd">var</span> <span class="nx">ClientTcp</span> <span class="o">=</span> <span class="nx">jsonrpc</span><span class="p">.</span><span class="nx">transports</span><span class="p">.</span><span class="nx">client</span><span class="p">.</span><span class="nx">tcp</span><span class="p">;</span>
 
 <span class="nx">exports</span><span class="p">.</span><span class="nx">loopback</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">test</span><span class="p">)</span> <span class="p">{</span>
     <span class="nx">test</span><span class="p">.</span><span class="nx">expect</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
@@ -19,7 +25,9 @@
         <span class="p">});</span>
     <span class="p">});</span>
     <span class="nx">server</span><span class="p">.</span><span class="nx">listen</span><span class="p">(</span><span class="mi">23456</span><span class="p">);</span>
-    <span class="kd">var</span> <span class="nx">tcpTransport</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">TcpTransport</span><span class="p">(</span><span class="s1">&#39;localhost&#39;</span><span class="p">,</span> <span class="mi">23456</span><span class="p">);</span>
+    <span class="kd">var</span> <span class="nx">tcpTransport</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">TcpTransport</span><span class="p">(</span><span class="s1">&#39;localhost&#39;</span><span class="p">,</span> <span class="mi">23456</span><span class="p">,</span> <span class="p">{</span>
+        <span class="nx">logger</span><span class="o">:</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span>
+    <span class="p">});</span>
     <span class="nx">tcpTransport</span><span class="p">.</span><span class="nx">request</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">result</span><span class="p">)</span> <span class="p">{</span>
         <span class="nx">test</span><span class="p">.</span><span class="nx">equal</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">,</span> <span class="nx">result</span><span class="p">,</span> <span class="s1">&#39;loopback worked correctly&#39;</span><span class="p">);</span>
         <span class="nx">tcpTransport</span><span class="p">.</span><span class="nx">shutdown</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
@@ -197,4 +205,63 @@ the stopBuffering code shouldn't interfere with regular requests</p>
     <span class="p">},</span> <span class="mi">10</span><span class="o">*</span><span class="mi">1000</span><span class="p">);</span>
 <span class="p">};</span>
 
-</pre></div></td></tr></tbody></table><div id="generated">generated Mon May 06 2013 19:22:59 GMT-0700 (PDT)  </div></div></body></html>
+<span class="nx">exports</span><span class="p">.</span><span class="nx">reconnect</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">test</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">test</span><span class="p">.</span><span class="nx">expect</span><span class="p">(</span><span class="mi">4</span><span class="p">);</span>
+    <span class="kd">var</span> <span class="nx">tcpServer</span><span class="p">;</span>
+
+    <span class="kd">var</span> <span class="nx">tcpClient</span><span class="p">;</span>
+
+    <span class="kd">var</span> <span class="nx">sendRequest</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">done</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">tcpClient</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">tcpClient</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Client</span><span class="p">(</span><span class="k">new</span> <span class="nx">ClientTcp</span><span class="p">(</span><span class="s1">&#39;localhost&#39;</span><span class="p">,</span> <span class="mi">23458</span><span class="p">,</span> <span class="p">{</span>
+                <span class="nx">stopBufferingAfter</span><span class="o">:</span> <span class="mi">30</span><span class="o">*</span><span class="mi">1000</span><span class="p">,</span>
+                <span class="nx">logger</span><span class="o">:</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="nx">console</span><span class="p">)</span>
+            <span class="p">}));</span>
+            <span class="nx">tcpClient</span><span class="p">.</span><span class="nx">register</span><span class="p">(</span><span class="s1">&#39;loopback&#39;</span><span class="p">);</span>
+        <span class="p">}</span>
+        <span class="nx">tcpClient</span><span class="p">.</span><span class="nx">loopback</span><span class="p">({</span><span class="s1">&#39;id&#39;</span><span class="o">:</span> <span class="s1">&#39;foo&#39;</span><span class="p">},</span> <span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">result</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;got response&#39;</span><span class="p">);</span>
+            <span class="nx">console</span><span class="p">.</span><span class="nx">dir</span><span class="p">(</span><span class="nx">arguments</span><span class="p">);</span>
+            <span class="nx">test</span><span class="p">.</span><span class="nx">equal</span><span class="p">(</span><span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">({</span><span class="s1">&#39;id&#39;</span><span class="o">:</span> <span class="s1">&#39;foo&#39;</span><span class="p">}),</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">result</span><span class="p">),</span> <span class="s1">&#39;received the response&#39;</span><span class="p">);</span>
+            <span class="nx">done</span><span class="p">();</span>
+        <span class="p">});</span>
+    <span class="p">};</span>
+
+    <span class="kd">var</span> <span class="nx">createServer</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">done</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;create server&#39;</span><span class="p">);</span>
+        <span class="nx">tcpServer</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Server</span><span class="p">(</span><span class="k">new</span> <span class="nx">ServerTcp</span><span class="p">(</span><span class="mi">23458</span><span class="p">),</span> <span class="p">{</span>
+            <span class="nx">loopback</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">arg</span><span class="p">,</span> <span class="nx">callback</span><span class="p">)</span> <span class="p">{</span> <span class="nx">callback</span><span class="p">(</span><span class="kc">null</span><span class="p">,</span> <span class="nx">arg</span><span class="p">);</span> <span class="p">}</span>
+        <span class="p">},</span> <span class="nx">done</span><span class="p">);</span>
+        <span class="nx">tcpServer</span><span class="p">.</span><span class="nx">transport</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;listening&#39;</span><span class="p">,</span> <span class="nx">done</span><span class="p">);</span>
+    <span class="p">};</span>
+    <span class="kd">var</span> <span class="nx">killServer</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">done</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;kill server&#39;</span><span class="p">);</span>
+        <span class="nx">tcpServer</span><span class="p">.</span><span class="nx">shutdown</span><span class="p">(</span><span class="nx">done</span><span class="p">);</span>
+    <span class="p">};</span>
+
+    <span class="nx">async</span><span class="p">.</span><span class="nx">series</span><span class="p">([</span></pre></div></td></tr><tr id="section-9"><td class="docs"><div class="pilwrap"><a href="#section-9" class="pilcrow">&#182;</a></div><p>sendRequest,</p>
+</td><td class="code"><div class="highlight"><pre>        <span class="kd">function</span><span class="p">(</span><span class="nx">done</span><span class="p">)</span> <span class="p">{</span> <span class="nx">setTimeout</span><span class="p">(</span><span class="nx">done</span><span class="p">,</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">random</span><span class="p">()</span> <span class="o">*</span> <span class="mi">5000</span><span class="p">);</span> <span class="p">},</span>
+        <span class="nx">createServer</span><span class="p">,</span>
+        <span class="nx">sendRequest</span><span class="p">,</span>
+        <span class="nx">killServer</span><span class="p">,</span>
+        <span class="kd">function</span><span class="p">(</span><span class="nx">done</span><span class="p">)</span> <span class="p">{</span> <span class="nx">setTimeout</span><span class="p">(</span><span class="nx">done</span><span class="p">,</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">random</span><span class="p">()</span> <span class="o">*</span> <span class="mi">5000</span><span class="p">);</span> <span class="p">},</span>
+        <span class="nx">createServer</span><span class="p">,</span>
+        <span class="nx">sendRequest</span><span class="p">,</span>
+        <span class="nx">killServer</span><span class="p">,</span>
+        <span class="kd">function</span><span class="p">(</span><span class="nx">done</span><span class="p">)</span> <span class="p">{</span> <span class="nx">setTimeout</span><span class="p">(</span><span class="nx">done</span><span class="p">,</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">random</span><span class="p">()</span> <span class="o">*</span> <span class="mi">5000</span><span class="p">);</span> <span class="p">},</span>
+        <span class="nx">createServer</span><span class="p">,</span>
+        <span class="nx">sendRequest</span><span class="p">,</span>
+        <span class="nx">killServer</span><span class="p">,</span>
+        <span class="kd">function</span><span class="p">(</span><span class="nx">done</span><span class="p">)</span> <span class="p">{</span> <span class="nx">setTimeout</span><span class="p">(</span><span class="nx">done</span><span class="p">,</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">random</span><span class="p">()</span> <span class="o">*</span> <span class="mi">5000</span><span class="p">);</span> <span class="p">},</span>
+        <span class="nx">createServer</span><span class="p">,</span>
+        <span class="nx">sendRequest</span><span class="p">,</span>
+        <span class="nx">killServer</span>
+    <span class="p">],</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">console</span><span class="p">.</span><span class="nx">dir</span><span class="p">(</span><span class="nx">err</span><span class="p">);</span>
+        <span class="nx">tcpClient</span><span class="p">.</span><span class="nx">shutdown</span><span class="p">();</span>
+        <span class="nx">test</span><span class="p">.</span><span class="nx">done</span><span class="p">();</span>
+    <span class="p">});</span>
+
+<span class="p">};</span>
+
+</pre></div></td></tr></tbody></table><div id="generated">generated Tue May 07 2013 23:29:36 GMT-0700 (PDT)  </div></div></body></html>
