@@ -143,7 +143,7 @@ exports.tcpServerEvents1 = function(test) {
         test.ok(!err, 'no error');
         test.equal(result, 'foo', 'loopback worked');
         client.shutdown(function() {
-            server.shutdown();
+            setTimeout(server.shutdown.bind(server), 500);
         });
     });
 };
