@@ -17,7 +17,6 @@
     "unused": true,
     "strict": false,
     "trailing": true,
-    "es5": true,
     "node": true,
     "noempty": true,
     "maxdepth": 4,
