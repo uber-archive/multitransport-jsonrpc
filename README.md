@@ -4,16 +4,18 @@
 
 This pluggable architecture means you can continue to use an RPC-type pattern even in use-cases where JSON-RPC has not traditionally been a great fit. The HTTP transport provides compatibility with traditional JSON-RPC clients and servers, while the TCP transport trims the fat of the HTTP header and amortizes the TCP handshake overhead, improving transport performance for large numbers of small messages. A theoretical ZeroMQ or SMTP transport could allow totally asynchronous clients and servers, where neither the client nor server need to be running all the time for communication to still successfully take place.
 
-## Why TCP?
+## Why nonstandard transports (such as TCP)?
 
-It's not an official JSON-RPC standard, so why not just use HTTP for everything? The answer is simple: ridiculous performance gains when you don't need to do a TCP handshake or account for the HTTP header overhead on each request and response. Here's the results of a perf test on my local machine:
+It's not an official JSON-RPC standard, so why not just use HTTP for everything? The answer is simple: ridiculous performance gains when you don't need to do a TCP handshake or account for the HTTP header overhead on each request and response. Here's the results of a perf test on Travis CI:
 
 ```
-TCP took 726ms, 13774.104683195592 reqs/sec
-HTTP took 17924ms, 557.911180540058 reqs/sec
+Loopback took 7ms, 142857.14285714287 reqs/sec
+ChildProc IPC took 30ms, 33333.333333333336 reqs/sec
+TCP took 74ms, 13513.513513513513 reqs/sec
+HTTP took 758ms, 1319.2612137203166 reqs/sec
 ```
 
-The TCP transport is nearly 25x faster for small messages than for large.
+The Loopback transport (all in-process, useful for testing and gauging the fundamental limit of JSON-RPC) comes in at over 100x faster than HTTP, over Node's IPC mechanism to child processes it's over 25x faster, and the TCP transport is over 10x faster.
 
 ## Install
 
@@ -157,6 +159,30 @@ The Client TCP Transport events are:
 
 ``shutdown`` - This event is fired when the transport is shutdown.
 
+#### jsonrpc.transports.client.childProcess
+
+``new jsonrpc.transports.client.childProcess(child, config)``
+
+``child`` - The Node.js child process object created by ``child_process.fork(sourceFile)``
+
+``config`` - The configuration settings. For the client Child Process transport, these are:
+
+``timeout`` - The time, in ms, that the transport will wait for a response (default: 30 seconds)
+
+``sweepTime`` - The time, in ms, that the transport will run a sweep mechanism to throw away old requests that never returned (default: 1 second)
+
+``killChildOnShutdown`` - A flag that specifies whether or not shutting down the client kills the child process (true) or merely disconnects the IPC from it (false). (default: true)
+
+The Client Child Process Transport events are:
+
+``exit`` - This event is fired whenever the child process exits. The client object is automatically shut down at this time.
+
+``error`` - This event is fired whenever the child process returns an error. The client object is automatically shut down at this time.
+
+``sweep`` - This event is fired when the transport clears out old requests that went past the expiration time. The callbacks receive an array of failed requests (if any) as the only argument.
+
+``shutdown`` - This event is fired when the transport is shutdown.
+
 #### jsonrpc.transports.server.http
 
 ``new jsonrpc.transports.server.http(port, config)``
@@ -212,6 +238,18 @@ The Server TCP Transport events are:
 ``server`` - A reference to the underlying server the middleware relies on. Used only for ``shutdown`` compatibility, if desired.
 
 The Server Middleware Transport events are:
+
+``message`` - This event is fired whenever a complete message is received, and the registered callbacks receive the JSON-RPC object as their only argument.
+
+``shutdown`` - This event is fired when the transport is shutdown.
+
+#### jsonrpc.transports.server.childProcess
+
+``new jsonrpc.transports.server.childProcess(config)``
+
+``config`` - The configuration settings. For the Child Process transport, there are no configuration options at this time!
+
+The Child Process Transport events are:
 
 ``message`` - This event is fired whenever a complete message is received, and the registered callbacks receive the JSON-RPC object as their only argument.
 
