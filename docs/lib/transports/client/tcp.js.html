@@ -6,8 +6,9 @@
 instance when attached to the data event handler</p>
 </td><td class="code"><div class="highlight"><pre><span class="kd">function</span> <span class="nx">onDataCallback</span><span class="p">(</span><span class="nx">message</span><span class="p">)</span> <span class="p">{</span>
     <span class="k">if</span><span class="p">(</span><span class="nx">message</span> <span class="o">&amp;&amp;</span> <span class="k">this</span><span class="p">.</span><span class="nx">requests</span><span class="p">[</span><span class="nx">message</span><span class="p">.</span><span class="nx">id</span><span class="p">])</span> <span class="p">{</span>
-        <span class="k">this</span><span class="p">.</span><span class="nx">requests</span><span class="p">[</span><span class="nx">message</span><span class="p">.</span><span class="nx">id</span><span class="p">].</span><span class="nx">callback</span><span class="p">(</span><span class="nx">message</span><span class="p">);</span>
+        <span class="kd">var</span> <span class="nx">request</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">requests</span><span class="p">[</span><span class="nx">message</span><span class="p">.</span><span class="nx">id</span><span class="p">];</span>
         <span class="k">delete</span> <span class="k">this</span><span class="p">.</span><span class="nx">requests</span><span class="p">[</span><span class="nx">message</span><span class="p">.</span><span class="nx">id</span><span class="p">];</span>
+        <span class="nx">request</span><span class="p">.</span><span class="nx">callback</span><span class="p">(</span><span class="nx">message</span><span class="p">);</span>
     <span class="p">}</span>
 <span class="p">}</span>
 
@@ -171,4 +172,4 @@ connection is ended, and a callback, if any, is called.</p>
 <span class="p">};</span></pre></div></td></tr><tr id="section-23"><td class="docs"><div class="pilwrap"><a href="#section-23" class="pilcrow">&#182;</a></div><p>Export the client TcpTransport</p>
 </td><td class="code"><div class="highlight"><pre><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">TcpTransport</span><span class="p">;</span>
 
-</pre></div></td></tr></tbody></table><div id="generated">generated Thu May 09 2013 14:16:53 GMT-0700 (PDT)  </div></div></body></html>
+</pre></div></td></tr></tbody></table><div id="generated">generated Mon May 13 2013 13:48:30 GMT-0700 (PDT)  </div></div></body></html>
