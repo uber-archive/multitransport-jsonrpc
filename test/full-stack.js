@@ -3,6 +3,7 @@ var Client = jsonrpc.client;
 var Server = jsonrpc.server;
 var ClientHttp = jsonrpc.transports.client.http;
 var ClientTcp = jsonrpc.transports.client.tcp;
+var ClientChildProc = jsonrpc.transports.client.childProcess;
 var ServerHttp = jsonrpc.transports.server.http;
 var ServerTcp = jsonrpc.transports.server.tcp;
 var ServerMiddleware = jsonrpc.transports.server.middleware;
@@ -10,6 +11,10 @@ var Loopback = jsonrpc.transports.shared.loopback;
 var express = require('express');
 var http = require('http');
 var net = require('net');
+var childProcess = require('child_process');
+var child = childProcess.fork(__dirname + '/child/child.js');
+var childProcClient = new Client(new ClientChildProc(child));
+childProcClient.register('loopback');
 
 exports.loopbackHttp = function(test) {
     test.expect(1);
@@ -170,12 +175,16 @@ String.prototype.repeat = function(num) {
 };
 
 function perf(testString, test) {
-    test.expect(2);
+    test.expect(4);
     var numMessages = 1000;
     var tcpServer = new Server(new ServerTcp(9001), {
         loopback: function(arg, callback) { callback(null, arg); }
     });
     var httpServer = new Server(new ServerHttp(9002), {
+        loopback: function(arg, callback) { callback(null, arg); }
+    });
+    var loopback = new Loopback();
+    var loopbackServer = new Server(loopback, {
         loopback: function(arg, callback) { callback(null, arg); }
     });
     var tcpClient = new Client(new ClientTcp('localhost', 9001));
@@ -191,6 +200,8 @@ function perf(testString, test) {
                 var tcpTime = tcpEnd - tcpStart;
                 var tcpRate = numMessages * 1000 / tcpTime;
                 console.log("TCP took " + tcpTime + "ms, " + tcpRate + " reqs/sec");
+                tcpClient.shutdown();
+                tcpServer.shutdown();
                 next();
             }
         });
@@ -209,15 +220,52 @@ function perf(testString, test) {
                     var httpTime = httpEnd - httpStart;
                     var httpRate = numMessages * 1000 / httpTime;
                     console.log("HTTP took " + httpTime + "ms, " + httpRate + " reqs/sec");
-                    tcpClient.shutdown();
                     httpClient.shutdown();
-                    tcpServer.shutdown();
                     httpServer.shutdown();
+                    more();
+                }
+            });
+        }
+    }
+    function more() {
+        var childProcCount = 0, childProcStart = Date.now(), childProcEnd;
+        for(var i = 0; i < numMessages; i++) {
+            /* jshint loopfunc: true */
+            childProcClient.loopback(i, function() {
+                childProcCount++;
+                if(childProcCount === numMessages) {
+                    test.ok(true, 'childProc finished');
+                    childProcEnd = Date.now();
+                    var childProcTime = childProcEnd - childProcStart;
+                    var childProcRate = numMessages * 1000 / childProcTime;
+                    console.log("Child Proc IPC took " + childProcTime + "ms, " + childProcRate + " reqs/sec");
+                    last();
+                }
+            });
+        }
+    }
+    function last() {
+        var loopbackClient = new Client(loopback);
+        loopbackClient.register('loopback');
+        var loopbackCount = 0, loopbackStart = Date.now(), loopbackEnd;
+        for(var i = 0; i < numMessages; i++) {
+            /* jshint loopfunc: true */
+            loopbackClient.loopback(i, function() {
+                loopbackCount++;
+                if(loopbackCount === numMessages) {
+                    test.ok(true, 'loopback finished');
+                    loopbackEnd = Date.now();
+                    var loopbackTime = loopbackEnd - loopbackStart;
+                    var loopbackRate = numMessages * 1000 / loopbackTime;
+                    console.log("Loopback took " + loopbackTime + "ms, " + loopbackRate + " reqs/sec");
+                    loopbackClient.shutdown();
+                    loopbackServer.shutdown();
                     test.done();
                 }
             });
         }
     }
+
 }
 
 exports.perfSimple = perf.bind(null, null);
@@ -225,3 +273,8 @@ exports.perf100 = perf.bind(null, 'a'.repeat(100));
 exports.perf1000 = perf.bind(null, 'a'.repeat(1000));
 exports.perf10000 = perf.bind(null, 'a'.repeat(10000));
 exports.perf100000 = perf.bind(null, 'a'.repeat(100000));
+
+exports.closeChild = function(test) {
+    child.kill();
+    test.done();
+};
