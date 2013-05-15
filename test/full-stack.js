@@ -51,6 +51,18 @@ exports.failureTcp = function(test) {
     });
 };
 
+exports.sweepedRequest = function(test) {
+    test.expect(2);
+    var client = new Client(new ClientTcp('localhost', 44444));
+    client.register(['willNeverReachAServer']);
+    client.willNeverReachAServer(function(err) {
+        test.ok(err instanceof Error, 'received an error message');
+        test.equal(err.message, 'Request Timed Out', 'received the "sweep" error message');
+        client.shutdown();
+        test.done();
+    });
+};
+
 exports.loopbackLoopback = function(test) {
     test.expect(3);
     var loopback = new Loopback();

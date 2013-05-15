@@ -125,14 +125,14 @@ exports.stopBuffering = function(test) {
     });
     // Early messages will be attempted and eventually time out
     tcpTransport.request({id: 'foo'}, function(result) {
-        test.ok(result instanceof Error, "Couldn't connect to the (nonexistent) server");
-        test.equal(result.message, 'Request Timed Out', 'time out error message received');
+        test.ok(!!result.error, "Couldn't connect to the (nonexistent) server");
+        test.equal(result.error, 'Request Timed Out', 'time out error message received');
     });
     // Later messages will be immediately killed
     setTimeout(function() {
         tcpTransport.request({id: 'foo'}, function(result) {
-            test.ok(result instanceof Error, "Still can't connect to the nonexistent server");
-            test.equal(result.message, 'Connection Unavailable', 'immediately blocked by the maximum timeout time for the server');
+            test.ok(!!result.error, "Still can't connect to the nonexistent server");
+            test.equal(result.error, 'Connection Unavailable', 'immediately blocked by the maximum timeout time for the server');
             var serverFunc = function(c) {
                 con = c;
                 var buffer = new Buffer('');
@@ -179,8 +179,8 @@ exports.dontStopBuffering = function(test) {
         stopBufferingAfter: 8*1000
     });
     tcpTransport.request({id: 'foo'}, function(result) {
-        test.ok(result instanceof Error);
-        test.equal(result.message, 'Request Timed Out');
+        test.ok(!!result.error);
+        test.equal(result.error, 'Request Timed Out');
     });
     setTimeout(function() {
         tcpTransport.request({id: 'foo'}, function(result) {
