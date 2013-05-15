@@ -52,6 +52,18 @@
     <span class="p">});</span>
 <span class="p">};</span>
 
+<span class="nx">exports</span><span class="p">.</span><span class="nx">sweepedRequest</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">test</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">test</span><span class="p">.</span><span class="nx">expect</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+    <span class="kd">var</span> <span class="nx">client</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Client</span><span class="p">(</span><span class="k">new</span> <span class="nx">ClientTcp</span><span class="p">(</span><span class="s1">&#39;localhost&#39;</span><span class="p">,</span> <span class="mi">44444</span><span class="p">));</span>
+    <span class="nx">client</span><span class="p">.</span><span class="nx">register</span><span class="p">([</span><span class="s1">&#39;willNeverReachAServer&#39;</span><span class="p">]);</span>
+    <span class="nx">client</span><span class="p">.</span><span class="nx">willNeverReachAServer</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">test</span><span class="p">.</span><span class="nx">ok</span><span class="p">(</span><span class="nx">err</span> <span class="k">instanceof</span> <span class="nb">Error</span><span class="p">,</span> <span class="s1">&#39;received an error message&#39;</span><span class="p">);</span>
+        <span class="nx">test</span><span class="p">.</span><span class="nx">equal</span><span class="p">(</span><span class="nx">err</span><span class="p">.</span><span class="nx">message</span><span class="p">,</span> <span class="s1">&#39;Request Timed Out&#39;</span><span class="p">,</span> <span class="s1">&#39;received the &quot;sweep&quot; error message&#39;</span><span class="p">);</span>
+        <span class="nx">client</span><span class="p">.</span><span class="nx">shutdown</span><span class="p">();</span>
+        <span class="nx">test</span><span class="p">.</span><span class="nx">done</span><span class="p">();</span>
+    <span class="p">});</span>
+<span class="p">};</span>
+
 <span class="nx">exports</span><span class="p">.</span><span class="nx">loopbackLoopback</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">test</span><span class="p">)</span> <span class="p">{</span>
     <span class="nx">test</span><span class="p">.</span><span class="nx">expect</span><span class="p">(</span><span class="mi">3</span><span class="p">);</span>
     <span class="kd">var</span> <span class="nx">loopback</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Loopback</span><span class="p">();</span>
@@ -272,4 +284,4 @@ The following is copied from the definition of app.listen()</p>
     <span class="nx">test</span><span class="p">.</span><span class="nx">done</span><span class="p">();</span>
 <span class="p">};</span>
 
-</pre></div></td></tr></tbody></table><div id="generated">generated Tue May 14 2013 17:21:07 GMT-0700 (PDT)  </div></div></body></html>
+</pre></div></td></tr></tbody></table><div id="generated">generated Wed May 15 2013 16:25:12 GMT-0700 (PDT)  </div></div></body></html>
