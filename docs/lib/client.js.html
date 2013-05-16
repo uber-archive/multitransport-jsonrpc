@@ -18,7 +18,7 @@ function names to be used by the developer using this JSON-RPC client.</p>
 </td><td class="code"><div class="highlight"><pre><span class="kd">function</span> <span class="nx">JSONRPC</span><span class="p">(</span><span class="nx">transport</span><span class="p">,</span> <span class="nx">options</span><span class="p">,</span> <span class="nx">done</span><span class="p">)</span> <span class="p">{</span>
     <span class="k">this</span><span class="p">.</span><span class="nx">transport</span> <span class="o">=</span> <span class="nx">transport</span><span class="p">;</span></pre></div></td></tr><tr id="section-3"><td class="docs"><div class="pilwrap"><a href="#section-3" class="pilcrow">&#182;</a></div><p>Parse any <em>options</em> provided to the client
 If no <em>options</em> object provided, create an empty one</p>
-</td><td class="code"><div class="highlight"><pre>    <span class="k">if</span><span class="p">(</span><span class="k">typeof</span><span class="p">(</span><span class="nx">options</span><span class="p">)</span> <span class="o">!==</span> <span class="s2">&quot;object&quot;</span><span class="p">)</span> <span class="p">{</span>
+</td><td class="code"><div class="highlight"><pre>    <span class="k">if</span><span class="p">(</span><span class="k">typeof</span><span class="p">(</span><span class="nx">options</span><span class="p">)</span> <span class="o">!==</span> <span class="s2">&quot;object&quot;</span> <span class="o">||</span> <span class="nx">options</span> <span class="o">===</span> <span class="kc">null</span><span class="p">)</span> <span class="p">{</span>
         <span class="nx">options</span> <span class="o">=</span> <span class="p">{};</span>
     <span class="p">}</span></pre></div></td></tr><tr id="section-4"><td class="docs"><div class="pilwrap"><a href="#section-4" class="pilcrow">&#182;</a></div><p><em>autoRegister</em> methods from the server unless explicitly told otherwise</p>
 </td><td class="code"><div class="highlight"><pre>    <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nx">options</span><span class="p">.</span><span class="nx">hasOwnProperty</span><span class="p">(</span><span class="s2">&quot;autoRegister&quot;</span><span class="p">)</span> <span class="o">||</span> <span class="nx">options</span><span class="p">.</span><span class="nx">autoRegister</span><span class="p">)</span> <span class="p">{</span>
@@ -87,4 +87,4 @@ method names and directly modifies the</p>
 
 <span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">JSONRPC</span><span class="p">;</span>
 
-</pre></div></td></tr></tbody></table><div id="generated">generated Wed May 15 2013 16:25:08 GMT-0700 (PDT)  </div></div></body></html>
+</pre></div></td></tr></tbody></table><div id="generated">generated Thu May 16 2013 12:28:23 GMT-0700 (PDT)  </div></div></body></html>
