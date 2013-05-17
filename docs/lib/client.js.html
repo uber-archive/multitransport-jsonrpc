@@ -50,7 +50,9 @@ remote method.</p>
             <span class="k">if</span><span class="p">(</span><span class="nx">response</span><span class="p">.</span><span class="nx">error</span><span class="p">)</span> <span class="p">{</span>
                 <span class="k">if</span><span class="p">(</span><span class="nx">response</span><span class="p">.</span><span class="nx">error</span><span class="p">.</span><span class="nx">message</span><span class="p">)</span> <span class="p">{</span>
                     <span class="kd">var</span> <span class="nx">err</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Error</span><span class="p">(</span><span class="nx">response</span><span class="p">.</span><span class="nx">error</span><span class="p">.</span><span class="nx">message</span><span class="p">);</span>
-                    <span class="nx">err</span><span class="p">.</span><span class="nx">stack</span> <span class="o">=</span> <span class="nx">response</span><span class="p">.</span><span class="nx">error</span><span class="p">.</span><span class="nx">stack</span><span class="p">;</span>
+                    <span class="nb">Object</span><span class="p">.</span><span class="nx">keys</span><span class="p">(</span><span class="nx">response</span><span class="p">.</span><span class="nx">error</span><span class="p">).</span><span class="nx">forEach</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">key</span><span class="p">)</span> <span class="p">{</span>
+                        <span class="k">if</span><span class="p">(</span><span class="nx">key</span> <span class="o">!==</span> <span class="s1">&#39;message&#39;</span><span class="p">)</span> <span class="nx">err</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span> <span class="o">=</span> <span class="nx">response</span><span class="p">.</span><span class="nx">error</span><span class="p">[</span><span class="nx">key</span><span class="p">];</span>
+                    <span class="p">});</span>
                     <span class="nx">callback</span><span class="p">(</span><span class="nx">err</span><span class="p">);</span>
                 <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
                     <span class="nx">callback</span><span class="p">(</span><span class="k">new</span> <span class="nb">Error</span><span class="p">(</span><span class="nx">response</span><span class="p">.</span><span class="nx">error</span><span class="p">));</span>
@@ -87,4 +89,4 @@ method names and directly modifies the</p>
 
 <span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">JSONRPC</span><span class="p">;</span>
 
-</pre></div></td></tr></tbody></table><div id="generated">generated Thu May 16 2013 12:28:23 GMT-0700 (PDT)  </div></div></body></html>
+</pre></div></td></tr></tbody></table><div id="generated">generated Fri May 17 2013 16:29:08 GMT-0700 (PDT)  </div></div></body></html>
