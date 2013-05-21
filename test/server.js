@@ -82,3 +82,69 @@ exports.failureTcp = function(test) {
         test.done();
     });
 };
+
+exports.nonexistentMethod = function(test) {
+    test.expect(2);
+    var jsonRpcServer = new JSONRPCserver(new HttpTransport(99111), {});
+    var testJSON = JSON.stringify({
+        id: 25,
+        method: 'nonexistent',
+        params: []
+    });
+    var req = http.request({
+        hostname: 'localhost',
+        port: 99111,
+        path: '/',
+        method: 'POST'
+    }, function(res) {
+        res.setEncoding('utf8');
+        var resultString = '';
+        res.on('data', function(data) {
+            resultString += data;
+        });
+        res.on('end', function() {
+            var resultObj;
+            try {
+                resultObj = JSON.parse(resultString);
+            } catch(e) {
+                // Do nothing, test will fail
+            }
+            test.equal(resultObj.id, 25, 'The JSON-RPC server sent back the correct ID');
+            test.equal(resultObj.error.message, 'Requested method does not exist.', 'The JSON-RPC server returned the expected error message.');
+            jsonRpcServer.shutdown(test.done.bind(test));
+        });
+    });
+    req.write(testJSON);
+    req.end();
+};
+
+exports.noncompliantJSON = function(test) {
+    test.expect(2);
+    var jsonRpcServer = new JSONRPCserver(new HttpTransport(99123), {});
+    var testJSON = JSON.stringify({ hello: 'world' });
+    var req = http.request({
+        hostname: 'localhost',
+        port: 99123,
+        path: '/',
+        method: 'POST'
+    }, function(res) {
+        res.setEncoding('utf8');
+        var resultString = '';
+        res.on('data', function(data) {
+            resultString += data;
+        });
+        res.on('end', function() {
+            var resultObj;
+            try {
+                resultObj = JSON.parse(resultString);
+            } catch(e) {
+                // Do nothing, test will fail
+            }
+            test.equal(resultObj.id, -1, 'The JSON-RPC server sent back the correct ID');
+            test.equal(resultObj.error.message, 'Did not receive valid JSON-RPC data.', 'The JSON-RPC server returned the expected error message.');
+            jsonRpcServer.shutdown(test.done.bind(test));
+        });
+    });
+    req.write(testJSON);
+    req.end();
+};
