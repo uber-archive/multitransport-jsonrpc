@@ -78,4 +78,18 @@
     <span class="p">});</span>
 <span class="p">};</span>
 
-</pre></div></td></tr></tbody></table><div id="generated">generated Tue May 21 2013 17:35:29 GMT-0700 (PDT)  </div></div></body></html>
+<span class="nx">exports</span><span class="p">.</span><span class="nx">invalidHttp</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">test</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">test</span><span class="p">.</span><span class="nx">expect</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+    <span class="kd">var</span> <span class="nx">server</span> <span class="o">=</span> <span class="nx">http</span><span class="p">.</span><span class="nx">createServer</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">res</span><span class="p">.</span><span class="nx">end</span><span class="p">(</span><span class="s1">&#39;Hahahaha&#39;</span><span class="p">);</span>
+    <span class="p">});</span>
+    <span class="nx">server</span><span class="p">.</span><span class="nx">listen</span><span class="p">(</span><span class="mi">23232</span><span class="p">);</span>
+    <span class="kd">var</span> <span class="nx">jsonRpcClient</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">JSONRPCclient</span><span class="p">(</span><span class="k">new</span> <span class="nx">HttpTransport</span><span class="p">(</span><span class="s1">&#39;localhost&#39;</span><span class="p">,</span> <span class="mi">23232</span><span class="p">));</span>
+    <span class="nx">jsonRpcClient</span><span class="p">.</span><span class="nx">register</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">);</span>
+    <span class="nx">jsonRpcClient</span><span class="p">.</span><span class="nx">foo</span><span class="p">(</span><span class="s1">&#39;bar&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">test</span><span class="p">.</span><span class="nx">ok</span><span class="p">(</span><span class="nx">err</span> <span class="k">instanceof</span> <span class="nb">Error</span><span class="p">,</span> <span class="s1">&#39;received the error response from the client library&#39;</span><span class="p">);</span>
+        <span class="nx">server</span><span class="p">.</span><span class="nx">close</span><span class="p">(</span><span class="nx">test</span><span class="p">.</span><span class="nx">done</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="nx">test</span><span class="p">));</span>
+    <span class="p">});</span>
+<span class="p">};</span>
+
+</pre></div></td></tr></tbody></table><div id="generated">generated Mon Jul 29 2013 15:37:35 GMT-0700 (PDT)  </div></div></body></html>
