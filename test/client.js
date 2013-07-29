@@ -76,3 +76,17 @@ exports.failureTcp = function(test) {
         });
     });
 };
+
+exports.invalidHttp = function(test) {
+    test.expect(1);
+    var server = http.createServer(function(req, res) {
+        res.end('Hahahaha');
+    });
+    server.listen(23232);
+    var jsonRpcClient = new JSONRPCclient(new HttpTransport('localhost', 23232));
+    jsonRpcClient.register('foo');
+    jsonRpcClient.foo('bar', function(err) {
+        test.ok(err instanceof Error, 'received the error response from the client library');
+        server.close(test.done.bind(test));
+    });
+};
