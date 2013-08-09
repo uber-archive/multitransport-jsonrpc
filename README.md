@@ -93,6 +93,13 @@ new Client(loopback, {}, function(jsonRpcLoopbackClient) {
         console.log(val); // Prints 'foo'
     });
 });
+
+// The server can run multiple transports simultaneously, too
+var jsonRpcMultitransportServer = new Server([new ServerTcp(8000), new ServerHttp(8080)], {
+    loopback: function(obj, callback) { callback(undefined, obj); }
+});
+var client1 = new Client(new ClientTcp('localhost', 8000));
+var client2 = new Client(new ClientHttp('localhost', 8080));
 ```
 
 ### Constructor Function Parameters
