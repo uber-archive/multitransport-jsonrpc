@@ -5,8 +5,9 @@ call. If not passed an explicit scope, <em>Node.js</em>' <em>root</em> scope wil
 Also, unlike the Javascript running in web browsers, functions not explicitly
 assigned to a scope are attached to the anonymous scope block only and cannot
 be accessed even from the <em>root</em> scope.</p>
-</td><td class="code"><div class="highlight"><pre><span class="kd">function</span> <span class="nx">JSONRPC</span><span class="p">(</span><span class="nx">transport</span><span class="p">,</span> <span class="nx">scope</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">this</span><span class="p">.</span><span class="nx">transport</span> <span class="o">=</span> <span class="nx">transport</span><span class="p">;</span>
+</td><td class="code"><div class="highlight"><pre><span class="kd">function</span> <span class="nx">JSONRPC</span><span class="p">(</span><span class="nx">transports</span><span class="p">,</span> <span class="nx">scope</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">transports</span> <span class="o">=</span> <span class="nb">Array</span><span class="p">.</span><span class="nx">isArray</span><span class="p">(</span><span class="nx">transports</span><span class="p">)</span> <span class="o">?</span> <span class="nx">transports</span> <span class="o">:</span> <span class="p">[</span><span class="nx">transports</span><span class="p">];</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">transport</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">transports</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span> <span class="c1">// For compatibility with existing code</span>
     <span class="k">this</span><span class="p">.</span><span class="nx">scope</span> <span class="o">=</span> <span class="nx">scope</span><span class="p">;</span></pre></div></td></tr><tr id="section-2"><td class="docs"><div class="pilwrap"><a href="#section-2" class="pilcrow">&#182;</a></div><p>The actual object initialization occurs here. If the <em>scope</em> is not
 defined, the <em>root</em> scope is used, and then the object is returned to
 the developer.</p>
@@ -19,7 +20,9 @@ the developer.</p>
         <span class="nx">callback</span><span class="p">(</span><span class="kc">null</span><span class="p">,</span> <span class="nb">Object</span><span class="p">.</span><span class="nx">keys</span><span class="p">(</span><span class="nx">scope</span><span class="p">));</span>
     <span class="p">};</span>
 
-    <span class="k">this</span><span class="p">.</span><span class="nx">transport</span><span class="p">.</span><span class="nx">handler</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">handleJSON</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="k">this</span><span class="p">);</span>
+    <span class="k">for</span><span class="p">(</span><span class="kd">var</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="k">this</span><span class="p">.</span><span class="nx">transports</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">transports</span><span class="p">[</span><span class="nx">i</span><span class="p">].</span><span class="nx">handler</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">handleJSON</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="k">this</span><span class="p">);</span>
+    <span class="p">}</span>
 
     <span class="k">return</span> <span class="k">this</span><span class="p">;</span>
 <span class="p">}</span></pre></div></td></tr><tr id="section-5"><td class="docs"><div class="pilwrap"><a href="#section-5" class="pilcrow">&#182;</a></div><h3>The <em>handleJSON</em> function</h3>
@@ -113,8 +116,15 @@ self-modifying code that rewrites its own definition.</p>
     <span class="p">};</span>
 <span class="p">};</span></pre></div></td></tr><tr id="section-10"><td class="docs"><div class="pilwrap"><a href="#section-10" class="pilcrow">&#182;</a></div><p>Cleanly shut down the JSONRPC server</p>
 </td><td class="code"><div class="highlight"><pre><span class="nx">JSONRPC</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">shutdown</span> <span class="o">=</span> <span class="kd">function</span> <span class="nx">shutdown</span><span class="p">(</span><span class="nx">done</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">this</span><span class="p">.</span><span class="nx">transport</span><span class="p">.</span><span class="nx">shutdown</span><span class="p">(</span><span class="nx">done</span><span class="p">);</span>
+    <span class="kd">var</span> <span class="nx">closed</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="kd">var</span> <span class="nx">transports</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">transports</span><span class="p">;</span>
+    <span class="nx">transports</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">transport</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">transport</span><span class="p">.</span><span class="nx">shutdown</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+            <span class="nx">closed</span><span class="o">++</span><span class="p">;</span>
+            <span class="k">if</span><span class="p">(</span><span class="nx">closed</span> <span class="o">===</span> <span class="nx">transports</span><span class="p">.</span><span class="nx">length</span> <span class="o">&amp;&amp;</span> <span class="k">typeof</span> <span class="nx">done</span> <span class="o">===</span> <span class="s1">&#39;function&#39;</span><span class="p">)</span> <span class="nx">done</span><span class="p">();</span>
+        <span class="p">});</span>
+    <span class="p">});</span>
 <span class="p">};</span></pre></div></td></tr><tr id="section-11"><td class="docs"><div class="pilwrap"><a href="#section-11" class="pilcrow">&#182;</a></div><p>Export the server constructor</p>
 </td><td class="code"><div class="highlight"><pre><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">JSONRPC</span><span class="p">;</span>
 
-</pre></div></td></tr></tbody></table><div id="generated">generated Mon Jul 29 2013 15:37:32 GMT-0700 (PDT)  </div></div></body></html>
+</pre></div></td></tr></tbody></table><div id="generated">generated Fri Aug 09 2013 14:21:12 GMT-0700 (PDT)  </div></div></body></html>

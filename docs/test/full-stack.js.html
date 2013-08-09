@@ -179,6 +179,29 @@ The following is copied from the definition of app.listen()</p>
     <span class="p">});</span>
 <span class="p">};</span>
 
+<span class="nx">exports</span><span class="p">.</span><span class="nx">multitransport</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">test</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">test</span><span class="p">.</span><span class="nx">expect</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+    <span class="kd">var</span> <span class="nx">server</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Server</span><span class="p">([</span><span class="k">new</span> <span class="nx">ServerTcp</span><span class="p">(</span><span class="mi">9999</span><span class="p">),</span> <span class="k">new</span> <span class="nx">ServerHttp</span><span class="p">(</span><span class="mi">9998</span><span class="p">)],</span> <span class="p">{</span>
+        <span class="nx">loopback</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">arg</span><span class="p">,</span> <span class="nx">callback</span><span class="p">)</span> <span class="p">{</span> <span class="nx">callback</span><span class="p">(</span><span class="kc">null</span><span class="p">,</span> <span class="nx">arg</span><span class="p">);</span> <span class="p">}</span>
+    <span class="p">});</span>
+    <span class="kd">var</span> <span class="nx">client1</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Client</span><span class="p">(</span><span class="k">new</span> <span class="nx">ClientTcp</span><span class="p">(</span><span class="s1">&#39;localhost&#39;</span><span class="p">,</span> <span class="mi">9999</span><span class="p">));</span>
+    <span class="kd">var</span> <span class="nx">client2</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Client</span><span class="p">(</span><span class="k">new</span> <span class="nx">ClientHttp</span><span class="p">(</span><span class="s1">&#39;localhost&#39;</span><span class="p">,</span> <span class="mi">9998</span><span class="p">));</span>
+    <span class="nx">client1</span><span class="p">.</span><span class="nx">register</span><span class="p">(</span><span class="s1">&#39;loopback&#39;</span><span class="p">);</span>
+    <span class="nx">client2</span><span class="p">.</span><span class="nx">register</span><span class="p">(</span><span class="s1">&#39;loopback&#39;</span><span class="p">);</span>
+    <span class="nx">client1</span><span class="p">.</span><span class="nx">loopback</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">result</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">test</span><span class="p">.</span><span class="nx">equal</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">,</span> <span class="nx">result</span><span class="p">,</span> <span class="s1">&#39;got the result over TCP&#39;</span><span class="p">);</span>
+        <span class="nx">client2</span><span class="p">.</span><span class="nx">loopback</span><span class="p">(</span><span class="s1">&#39;bar&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">result</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">test</span><span class="p">.</span><span class="nx">equal</span><span class="p">(</span><span class="s1">&#39;bar&#39;</span><span class="p">,</span> <span class="nx">result</span><span class="p">,</span> <span class="s1">&#39;got the result of HTTP&#39;</span><span class="p">);</span>
+            <span class="nx">client1</span><span class="p">.</span><span class="nx">shutdown</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+                <span class="nx">client2</span><span class="p">.</span><span class="nx">shutdown</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+                    <span class="nx">server</span><span class="p">.</span><span class="nx">shutdown</span><span class="p">(</span><span class="nx">test</span><span class="p">.</span><span class="nx">done</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="nx">test</span><span class="p">));</span>
+                <span class="p">});</span>
+            <span class="p">});</span>
+        <span class="p">});</span>
+    <span class="p">});</span>
+<span class="p">};</span>
+
+
 <span class="nb">String</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">repeat</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">num</span><span class="p">)</span> <span class="p">{</span>
     <span class="k">return</span> <span class="k">new</span> <span class="nb">Array</span><span class="p">(</span><span class="nx">num</span> <span class="o">+</span> <span class="mi">1</span><span class="p">).</span><span class="nx">join</span><span class="p">(</span><span class="k">this</span><span class="p">);</span>
 <span class="p">};</span>
@@ -284,4 +307,4 @@ The following is copied from the definition of app.listen()</p>
     <span class="nx">test</span><span class="p">.</span><span class="nx">done</span><span class="p">();</span>
 <span class="p">};</span>
 
-</pre></div></td></tr></tbody></table><div id="generated">generated Mon Jul 29 2013 15:37:35 GMT-0700 (PDT)  </div></div></body></html>
+</pre></div></td></tr></tbody></table><div id="generated">generated Fri Aug 09 2013 14:21:14 GMT-0700 (PDT)  </div></div></body></html>
