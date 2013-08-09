@@ -182,6 +182,29 @@ exports.tcpServerEvents2 = function(test) {
     });
 };
 
+exports.multitransport = function(test) {
+    test.expect(2);
+    var server = new Server([new ServerTcp(9999), new ServerHttp(9998)], {
+        loopback: function(arg, callback) { callback(null, arg); }
+    });
+    var client1 = new Client(new ClientTcp('localhost', 9999));
+    var client2 = new Client(new ClientHttp('localhost', 9998));
+    client1.register('loopback');
+    client2.register('loopback');
+    client1.loopback('foo', function(err, result) {
+        test.equal('foo', result, 'got the result over TCP');
+        client2.loopback('bar', function(err, result) {
+            test.equal('bar', result, 'got the result of HTTP');
+            client1.shutdown(function() {
+                client2.shutdown(function() {
+                    server.shutdown(test.done.bind(test));
+                });
+            });
+        });
+    });
+};
+
+
 String.prototype.repeat = function(num) {
     return new Array(num + 1).join(this);
 };
