@@ -84,6 +84,7 @@ exports.invalidHttp = function(test) {
     });
     server.listen(23232);
     var jsonRpcClient = new JSONRPCclient(new HttpTransport('localhost', 23232));
+    jsonRpcClient.transport.on('error', function() { /* Swallow transport-level errors, testing top-level client error handling */ });
     jsonRpcClient.register('foo');
     jsonRpcClient.foo('bar', function(err) {
         test.ok(err instanceof Error, 'received the error response from the client library');
