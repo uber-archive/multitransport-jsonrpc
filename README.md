@@ -154,6 +154,10 @@ The various transports also provide events you can listen on, using the [Node.js
 
 ``retryInterval`` - The time, in ms, that the client will wait before reconnect attempts (default: 250ms)
 
+``reconnects`` - The number of times the client will reconnect after a connection is closed (default: Infinity)
+
+``reconnectClearInterval`` - The time, in ms, after which the reconnect counter is reset. Set to 0 to disable (default: 1 hour)
+
 ``stopBufferingAfter`` - The time, in ms, that the client will return errors immediately to the caller *while still attempting to reconnect to the server*. If 0, it will never immediately return errors (default: 0)
 
 The Client TCP Transport events are:
@@ -314,15 +318,15 @@ jsonRpcClient.request("shutdown", ["arg1", "arg2"], callbackFunc);
 # Using the jsonrpc-repl binary
 
     Usage: jsonrpc-repl [options]
-    
+
     Options:
-    
+
         -h, --help               output usage information
         -s, --server <hostname>  The hostname the server is located on. (Default: "localhost")
         -p, --port <portnumber>  The port the server is bound to. (Default: 80)
         -t, --tcp                Connects to the server via TCP instead of HTTP (Default: false)
 
-The ``jsonrpc-repl`` dumps you into a [Node.js repl](http://nodejs.org/api/repl.html) with some bootstrapping done on connecting you to the RPC server and getting a list of valid server methods. You can access them with the ``rpc`` object in the exact same way as described above in the "Using JSON-RPC Client Methods" section. 
+The ``jsonrpc-repl`` dumps you into a [Node.js repl](http://nodejs.org/api/repl.html) with some bootstrapping done on connecting you to the RPC server and getting a list of valid server methods. You can access them with the ``rpc`` object in the exact same way as described above in the "Using JSON-RPC Client Methods" section.
 
 
 ## Creating A New Transport

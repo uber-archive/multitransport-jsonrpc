@@ -272,3 +272,53 @@ exports.reconnect = function(test) {
     });
 
 };
+
+exports.nullresponse = function(test) {
+    test.expect(1);
+    var server = net.createServer(function(con) {
+        con.end();
+    });
+    server.listen(23456);
+    var tcpTransport = new TcpTransport('localhost', 23456, {
+        logger: console.log,
+        reconnects: 1
+    });
+    setTimeout(function() {
+        test.equal(tcpTransport.con, undefined, 'should not have a connection');
+        tcpTransport.shutdown(function() {
+            server.close(test.done.bind(test));
+        });
+    }, 100);
+};
+
+exports.reconnectclearing = function(test) {
+    test.expect(2);
+    var server = net.createServer(function(con) {
+        con.end();
+    });
+    server.listen(23456);
+
+    var tcpTransport = new TcpTransport('localhost', 23456, {
+        logger: console.log,
+        reconnects: 1,
+        reconnectClearInterval: 110
+    });
+
+    setTimeout(function() {
+        test.equal(tcpTransport.con, undefined, 'should not have a connection');
+
+        // Pretend the service came back to life
+        server.close(function() {
+            server = net.createServer();
+            server.listen(23456);
+
+            setTimeout(function() {
+                test.ok(tcpTransport.con, 'should have a connection');
+
+                tcpTransport.shutdown(function() {
+                    server.close(test.done.bind(test));
+                });
+            }, 100);
+        });
+    }, 100);
+};
