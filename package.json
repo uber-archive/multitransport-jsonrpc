@@ -1,11 +1,15 @@
 {
 	"contributors": [
-		"David Ellis <d.f.ellis@ieee.org>",
-		"Alain Rodriguez <eagle5command@gmail.com>",
-        "Amos Barreto <amos.barreto@gmail.com>"
+        "Aiden Scandella <aiden@uber.com>",
+        "Alain Rodriguez <eagle5command@gmail.com>",
+        "Amos Barreto <amos.barreto@gmail.com>",
+        "David Ellis <d.f.ellis@ieee.org>",
+        "Hector Lugo <hector.lugo@agrosica.com>",
+        "Jeff Wolski <wolski@uber.com>",
+        "Jeremy Suurkivi <jeremy.suurkivi@uber.com>"
 	],
 	"name": "multitransport-jsonrpc",
-	"version": "0.3.24",
+	"version": "0.3.25",
 	"description": "JSON-RPC where performance matters",
     "keywords": ["json-rpc", "http", "tcp", "multitransport"],
     "homepage": "http://uber.github.com/multitransport-jsonrpc/",
