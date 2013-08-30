@@ -69,7 +69,7 @@ var jsonRpcLoopbackServer = new Server(loopback, {
 // Setting up and using the clients
 
 // Either explicitly register the remote methods
-var jsonRcpHttpClient = new Client(new ClientHttp('localhost', 8000));
+var jsonRpcHttpClient = new Client(new ClientHttp('localhost', 8000));
 jsonRpcHttpClient.register('loopback');
 jsonRpcHttpClient.loopback('foo', function(err, val) {
     console.log(val); // Prints 'foo'
