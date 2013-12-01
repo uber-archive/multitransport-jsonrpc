@@ -27,7 +27,7 @@ If you want to use the ``jsonrpc-repl`` binary, also
 
     npm install -g multitransport-jsonrpc
 
-## Library Usage
+## Library Usage (Node.js)
 
 ```js
 var jsonrpc = require('multitransport-jsonrpc'); // Get the multitransport JSON-RPC suite
@@ -101,6 +101,10 @@ var jsonRpcMultitransportServer = new Server([new ServerTcp(8000), new ServerHtt
 var client1 = new Client(new ClientTcp('localhost', 8000));
 var client2 = new Client(new ClientHttp('localhost', 8080));
 ```
+
+## Library Usage (browser)
+
+T.B.D.
 
 ### Constructor Function Parameters
 
