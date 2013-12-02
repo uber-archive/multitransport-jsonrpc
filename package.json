@@ -23,7 +23,7 @@
         "jsonrpc-repl": "bin/jsonrpc-repl"
     },
     "dependencies": {
-        "queue-flow": "*",
+        "queue-flow": "<0.7.x",
         "lambda-js": "*",
         "commander": "*"
     },
