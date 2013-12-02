@@ -15,79 +15,22 @@ each JSON-RPC server, but this is an odd use case we aren't implementing.</p>
 call the JSON-RPC server, and the <em>register</em> function constructs the expected
 function names to be used by the developer using this JSON-RPC client.</p>
 </td><td class="code"><div class="highlight"><pre></pre></div></td></tr><tr id="section-2"><td class="docs"><div class="pilwrap"><a href="#section-2" class="pilcrow">&#182;</a></div><p>The JSONRPC constructor <em>must</em> receive a server URL on initialization</p>
-</td><td class="code"><div class="highlight"><pre><span class="kd">function</span> <span class="nx">JSONRPC</span><span class="p">(</span><span class="nx">transport</span><span class="p">,</span> <span class="nx">options</span><span class="p">,</span> <span class="nx">done</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">this</span><span class="p">.</span><span class="nx">transport</span> <span class="o">=</span> <span class="nx">transport</span><span class="p">;</span></pre></div></td></tr><tr id="section-3"><td class="docs"><div class="pilwrap"><a href="#section-3" class="pilcrow">&#182;</a></div><p>Parse any <em>options</em> provided to the client
+</td><td class="code"><div class="highlight"><pre>undefined</pre></div></td></tr><tr id="section-3"><td class="docs"><div class="pilwrap"><a href="#section-3" class="pilcrow">&#182;</a></div><p>Parse any <em>options</em> provided to the client
 If no <em>options</em> object provided, create an empty one</p>
-</td><td class="code"><div class="highlight"><pre>    <span class="k">if</span><span class="p">(</span><span class="k">typeof</span><span class="p">(</span><span class="nx">options</span><span class="p">)</span> <span class="o">!==</span> <span class="s2">&quot;object&quot;</span> <span class="o">||</span> <span class="nx">options</span> <span class="o">===</span> <span class="kc">null</span><span class="p">)</span> <span class="p">{</span>
-        <span class="nx">options</span> <span class="o">=</span> <span class="p">{};</span>
-    <span class="p">}</span></pre></div></td></tr><tr id="section-4"><td class="docs"><div class="pilwrap"><a href="#section-4" class="pilcrow">&#182;</a></div><p><em>autoRegister</em> methods from the server unless explicitly told otherwise</p>
-</td><td class="code"><div class="highlight"><pre>    <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nx">options</span><span class="p">.</span><span class="nx">hasOwnProperty</span><span class="p">(</span><span class="s2">&quot;autoRegister&quot;</span><span class="p">)</span> <span class="o">||</span> <span class="nx">options</span><span class="p">.</span><span class="nx">autoRegister</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">this</span><span class="p">.</span><span class="nx">request</span><span class="p">(</span><span class="s1">&#39;rpc.methodList&#39;</span><span class="p">,</span> <span class="p">[],</span> <span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">result</span><span class="p">)</span> <span class="p">{</span>
-            <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nx">err</span><span class="p">)</span> <span class="k">this</span><span class="p">.</span><span class="nx">register</span><span class="p">(</span><span class="nx">result</span><span class="p">);</span>
-            <span class="k">if</span><span class="p">(</span><span class="nx">done</span><span class="p">)</span> <span class="nx">done</span><span class="p">(</span><span class="k">this</span><span class="p">);</span>
-        <span class="p">}.</span><span class="nx">bind</span><span class="p">(</span><span class="k">this</span><span class="p">));</span>
-    <span class="p">}</span></pre></div></td></tr><tr id="section-5"><td class="docs"><div class="pilwrap"><a href="#section-5" class="pilcrow">&#182;</a></div><p>Once the JSONRPC object has been properly initialized, return the object
+</td><td class="code"><div class="highlight"><pre>undefined</pre></div></td></tr><tr id="section-4"><td class="docs"><div class="pilwrap"><a href="#section-4" class="pilcrow">&#182;</a></div><p><em>autoRegister</em> methods from the server unless explicitly told otherwise</p>
+</td><td class="code"><div class="highlight"><pre>undefined</pre></div></td></tr><tr id="section-5"><td class="docs"><div class="pilwrap"><a href="#section-5" class="pilcrow">&#182;</a></div><p>Once the JSONRPC object has been properly initialized, return the object
 to the developer</p>
-</td><td class="code"><div class="highlight"><pre>    <span class="k">return</span> <span class="k">this</span><span class="p">;</span>
-<span class="p">}</span></pre></div></td></tr><tr id="section-6"><td class="docs"><div class="pilwrap"><a href="#section-6" class="pilcrow">&#182;</a></div><h3>The <em>request</em> function</h3>
+</td><td class="code"><div class="highlight"><pre>undefined</pre></div></td></tr><tr id="section-6"><td class="docs"><div class="pilwrap"><a href="#section-6" class="pilcrow">&#182;</a></div><h3>The <em>request</em> function</h3>
 
 <p>is a non-blocking function that takes an arbitrary number of arguments,
 where the first argument is the remote method name to execute, the last
 argument is the callback function to execute when the server returns its
 results, and all of the arguments in between are the values passed to the
 remote method.</p>
-</td><td class="code"><div class="highlight"><pre><span class="nx">JSONRPC</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">request</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">method</span><span class="p">,</span> <span class="nx">args</span><span class="p">,</span> <span class="nx">callback</span><span class="p">)</span> <span class="p">{</span></pre></div></td></tr><tr id="section-7"><td class="docs"><div class="pilwrap"><a href="#section-7" class="pilcrow">&#182;</a></div><p>The <em>contents</em> variable contains the JSON-RPC 1.0 POST string.</p>
-</td><td class="code"><div class="highlight"><pre>    <span class="kd">var</span> <span class="nx">contents</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="nx">method</span><span class="o">:</span> <span class="nx">method</span><span class="p">,</span>
-        <span class="nx">params</span><span class="o">:</span> <span class="nx">args</span><span class="p">,</span>
-        <span class="nx">id</span><span class="o">:</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">random</span><span class="p">()</span>
-    <span class="p">};</span>
-    <span class="k">this</span><span class="p">.</span><span class="nx">transport</span><span class="p">.</span><span class="nx">request</span><span class="p">(</span><span class="nx">contents</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">response</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nx">response</span> <span class="o">&amp;&amp;</span> <span class="nx">callback</span> <span class="k">instanceof</span> <span class="nb">Function</span><span class="p">)</span> <span class="p">{</span>
-            <span class="nx">callback</span><span class="p">(</span><span class="k">new</span> <span class="nb">Error</span><span class="p">(</span><span class="s2">&quot;Server did not return valid JSON-RPC response&quot;</span><span class="p">));</span>
-            <span class="k">return</span><span class="p">;</span>
-        <span class="p">}</span>
-        <span class="k">if</span><span class="p">(</span><span class="nx">callback</span> <span class="k">instanceof</span> <span class="nb">Function</span><span class="p">)</span> <span class="p">{</span>
-            <span class="k">if</span><span class="p">(</span><span class="nx">response</span><span class="p">.</span><span class="nx">error</span><span class="p">)</span> <span class="p">{</span>
-                <span class="k">if</span><span class="p">(</span><span class="nx">response</span><span class="p">.</span><span class="nx">error</span><span class="p">.</span><span class="nx">message</span><span class="p">)</span> <span class="p">{</span>
-                    <span class="kd">var</span> <span class="nx">err</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Error</span><span class="p">(</span><span class="nx">response</span><span class="p">.</span><span class="nx">error</span><span class="p">.</span><span class="nx">message</span><span class="p">);</span>
-                    <span class="nb">Object</span><span class="p">.</span><span class="nx">keys</span><span class="p">(</span><span class="nx">response</span><span class="p">.</span><span class="nx">error</span><span class="p">).</span><span class="nx">forEach</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">key</span><span class="p">)</span> <span class="p">{</span>
-                        <span class="k">if</span><span class="p">(</span><span class="nx">key</span> <span class="o">!==</span> <span class="s1">&#39;message&#39;</span><span class="p">)</span> <span class="nx">err</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span> <span class="o">=</span> <span class="nx">response</span><span class="p">.</span><span class="nx">error</span><span class="p">[</span><span class="nx">key</span><span class="p">];</span>
-                    <span class="p">});</span>
-                    <span class="nx">callback</span><span class="p">(</span><span class="nx">err</span><span class="p">);</span>
-                <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-                    <span class="nx">callback</span><span class="p">(</span><span class="k">new</span> <span class="nb">Error</span><span class="p">(</span><span class="nx">response</span><span class="p">.</span><span class="nx">error</span><span class="p">));</span>
-                <span class="p">}</span>
-            <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-                <span class="nx">callback</span><span class="p">(</span><span class="kc">undefined</span><span class="p">,</span> <span class="nx">response</span><span class="p">.</span><span class="nx">result</span><span class="p">);</span>
-            <span class="p">}</span>
-        <span class="p">}</span>
-    <span class="p">});</span>
-<span class="p">};</span></pre></div></td></tr><tr id="section-8"><td class="docs"><div class="pilwrap"><a href="#section-8" class="pilcrow">&#182;</a></div><h3>The <em>register</em> function</h3>
+</td><td class="code"><div class="highlight"><pre>undefined</pre></div></td></tr><tr id="section-7"><td class="docs"><div class="pilwrap"><a href="#section-7" class="pilcrow">&#182;</a></div><p>The <em>contents</em> variable contains the JSON-RPC 1.0 POST string.</p>
+</td><td class="code"><div class="highlight"><pre>undefined</pre></div></td></tr><tr id="section-8"><td class="docs"><div class="pilwrap"><a href="#section-8" class="pilcrow">&#182;</a></div><h3>The <em>register</em> function</h3>
 
 <p>is a simple blocking function that takes a method name or array of
 method names and directly modifies the</p>
-</td><td class="code"><div class="highlight"><pre><span class="nx">JSONRPC</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">register</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">methods</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="nx">methods</span> <span class="k">instanceof</span> <span class="nb">Array</span><span class="p">))</span> <span class="p">{</span>
-        <span class="nx">methods</span> <span class="o">=</span> <span class="p">[</span><span class="nx">methods</span><span class="p">];</span>
-    <span class="p">}</span>
-    <span class="nx">methods</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">method</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">if</span><span class="p">(</span><span class="nx">method</span> <span class="o">!==</span> <span class="s2">&quot;transport&quot;</span> <span class="o">&amp;&amp;</span> <span class="nx">method</span> <span class="o">!==</span> <span class="s2">&quot;request&quot;</span> <span class="o">&amp;&amp;</span> <span class="nx">method</span> <span class="o">!==</span> <span class="s2">&quot;register&quot;</span> <span class="o">&amp;&amp;</span> <span class="nx">method</span> <span class="o">!==</span> <span class="s2">&quot;shutdown&quot;</span><span class="p">)</span> <span class="p">{</span>
-            <span class="k">this</span><span class="p">[</span><span class="nx">method</span><span class="p">]</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
-                <span class="kd">var</span> <span class="nx">theArgs</span> <span class="o">=</span> <span class="p">[];</span>
-                <span class="k">for</span><span class="p">(</span><span class="kd">var</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">arguments</span><span class="p">.</span><span class="nx">length</span><span class="o">-</span><span class="mi">1</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
-                    <span class="nx">theArgs</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="o">=</span> <span class="nx">arguments</span><span class="p">[</span><span class="nx">i</span><span class="p">];</span>
-                <span class="p">}</span>
-                <span class="kd">var</span> <span class="nx">callback</span> <span class="o">=</span> <span class="nx">arguments</span><span class="p">[</span><span class="nx">arguments</span><span class="p">.</span><span class="nx">length</span><span class="o">-</span><span class="mi">1</span><span class="p">];</span>
-                <span class="k">this</span><span class="p">.</span><span class="nx">request</span><span class="p">(</span><span class="nx">method</span><span class="p">,</span> <span class="nx">theArgs</span><span class="p">,</span> <span class="nx">callback</span><span class="p">);</span>
-            <span class="p">};</span>
-        <span class="p">}</span>
-    <span class="p">}.</span><span class="nx">bind</span><span class="p">(</span><span class="k">this</span><span class="p">));</span>
-<span class="p">};</span></pre></div></td></tr><tr id="section-9"><td class="docs"><div class="pilwrap"><a href="#section-9" class="pilcrow">&#182;</a></div><p>Cleanly shutdown the JSONRPC client</p>
-</td><td class="code"><div class="highlight"><pre><span class="nx">JSONRPC</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">shutdown</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">done</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">this</span><span class="p">.</span><span class="nx">transport</span><span class="p">.</span><span class="nx">shutdown</span><span class="p">(</span><span class="nx">done</span><span class="p">);</span>
-<span class="p">};</span>
-
-<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">JSONRPC</span><span class="p">;</span>
-
-</pre></div></td></tr></tbody></table><div id="generated">generated Thu Aug 29 2013 12:09:10 GMT-0700 (PDT)  </div></div></body></html>
+</td><td class="code"><div class="highlight"><pre>undefined</pre></div></td></tr><tr id="section-9"><td class="docs"><div class="pilwrap"><a href="#section-9" class="pilcrow">&#182;</a></div><p>Cleanly shutdown the JSONRPC client</p>
+</td><td class="code"><div class="highlight"><pre>undefined</pre></div></td></tr></tbody></table><div id="generated">generated Mon Dec 02 2013 11:47:11 GMT-0800 (PST)  </div></div></body></html>
