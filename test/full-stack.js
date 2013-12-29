@@ -51,6 +51,25 @@ exports.failureTcp = function(test) {
     });
 };
 
+exports.objectFailureTcp = function(test) {
+    test.expect(4);
+    var server = new Server(new ServerTcp(44444), {
+        failure: function(arg, callback) { callback({ foo: "I have no idea what I'm doing." }); }
+    });
+    var client = new Client(new ClientTcp('localhost', 44444), {}, function(c) {
+        c.failure('foo', function(err) {
+            test.ok(!!err, 'error exists');
+            test.equal(err.foo, "I have no idea what I'm doing.", 'error message transmitted successfully.');
+            c.shutdown(function() {
+                server.shutdown(test.done.bind(test));
+            });
+        });
+    });
+    client.transport.on('message', function() {
+        test.ok('received a message'); // should happen twice
+    });
+};
+
 exports.sweepedRequest = function(test) {
     test.expect(2);
     var client = new Client(new ClientTcp('localhost', 44444));
