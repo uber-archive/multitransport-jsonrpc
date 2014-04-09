@@ -24,7 +24,7 @@ exports.loopback = function(test) {
         });
     });
     server.listen(23456);
-    var tcpTransport = new TcpTransport('localhost', 23456, {
+    var tcpTransport = new TcpTransport({ host: 'localhost', port: 23456 }, {
         logger: console.log
     });
     tcpTransport.request('foo', function(result) {
@@ -52,7 +52,7 @@ exports.sweep = function(test) {
         });
     });
     server.listen(23457);
-    var tcpTransport = new TcpTransport('localhost', 23457, { timeout: 100 });
+    var tcpTransport = new TcpTransport({ host: 'localhost', port: 23457 }, { timeout: 100 });
     tcpTransport.request('foo', function(err, result) {
         test.ok(!!err, 'should receive a timeout error');
         if(result) test.ok(false, 'this should never run');
@@ -90,7 +90,7 @@ exports.glitchedConnection = function(test) {
     };
     var server = net.createServer(serverFunc);
     server.listen(23458);
-    var tcpTransport = new TcpTransport('localhost', 23458);
+    var tcpTransport = new TcpTransport({ host: 'localhost', port: 23458 });
     tcpTransport.request({'id': 'foo'}, function(result) {
         test.equal(JSON.stringify({'id': 'foo'}), JSON.stringify(result), 'eventually received the response');
         tcpTransport.shutdown(function() {
@@ -119,7 +119,7 @@ exports.stopBuffering = function(test) {
     var con, server;
     // Create a client pointed to nowhere, telling it to stop trying requests after a while
     // (but continue attempting to connect to the server)
-    var tcpTransport = new TcpTransport('localhost', 23459, {
+    var tcpTransport = new TcpTransport({ host: 'localhost', port: 23459 }, {
         timeout: 2*1000,
         stopBufferingAfter: 5*1000
     });
@@ -174,7 +174,7 @@ exports.dontStopBuffering = function(test) {
     // being disconnected, but then reconnects *before* that period
     // the stopBuffering code shouldn't interfere with regular requests
     var server;
-    var tcpTransport = new TcpTransport('localhost', 23460, {
+    var tcpTransport = new TcpTransport({ host: 'localhost', port: 23460 }, {
         timeout: 2*1000,
         stopBufferingAfter: 8*1000
     });
@@ -221,7 +221,7 @@ exports.reconnect = function(test) {
 
     var sendRequest = function (done) {
         if (!tcpClient) {
-            tcpClient = new Client(new ClientTcp('localhost', 23458, {
+            tcpClient = new Client(new ClientTcp({ host: 'localhost', port: 23458 }, {
                 stopBufferingAfter: 30*1000,
                 logger: console.log.bind(console)
             }));
@@ -279,7 +279,7 @@ exports.nullresponse = function(test) {
         con.end();
     });
     server.listen(23456);
-    var tcpTransport = new TcpTransport('localhost', 23456, {
+    var tcpTransport = new TcpTransport({ host: 'localhost', port: 23456 }, {
         logger: console.log,
         reconnects: 1
     });
@@ -298,7 +298,7 @@ exports.reconnectclearing = function(test) {
     });
     server.listen(23456);
 
-    var tcpTransport = new TcpTransport('localhost', 23456, {
+    var tcpTransport = new TcpTransport({ host: 'localhost', port: 23456 }, {
         logger: console.log,
         reconnects: 1,
         reconnectClearInterval: 110

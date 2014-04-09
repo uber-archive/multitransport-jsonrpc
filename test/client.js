@@ -65,7 +65,7 @@ exports.failureTcp = function(test) {
         });
     });
     server.listen(11111);
-    var jsonRpcClient = new JSONRPCclient(new TcpTransport('localhost', 11111));
+    var jsonRpcClient = new JSONRPCclient(new TcpTransport({ host: 'localhost', port: 11111 }));
     jsonRpcClient.register('foo');
     jsonRpcClient.foo('bar', function(err) {
         test.ok(!!err, 'error exists');
