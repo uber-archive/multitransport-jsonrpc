@@ -31,7 +31,7 @@
         "async": "*",
         "nodeunit": "*",
         "docco-husky": "*",
-        "express": "*",
+        "express": "3.x",
         "jshint": "*"
     },
     "scripts": {
