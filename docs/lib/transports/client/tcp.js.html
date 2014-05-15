@@ -21,27 +21,28 @@ it out, and then increment the retry flag</p>
 </td><td class="code"><div class="highlight"><pre>undefined</pre></div></td></tr><tr id="section-12"><td class="docs"><div class="pilwrap"><a href="#section-12" class="pilcrow">&#182;</a></div><p>If this is the first try, attempt to reconnect immediately</p>
 </td><td class="code"><div class="highlight"><pre>undefined</pre></div></td></tr><tr id="section-13"><td class="docs"><div class="pilwrap"><a href="#section-13" class="pilcrow">&#182;</a></div><p>Too many tries, or not allowed to retry, mark the connection as dead</p>
 </td><td class="code"><div class="highlight"><pre>undefined</pre></div></td></tr><tr id="section-14"><td class="docs"><div class="pilwrap"><a href="#section-14" class="pilcrow">&#182;</a></div><p>The Client TcpTransport constructor function</p>
-</td><td class="code"><div class="highlight"><pre>undefined</pre></div></td></tr><tr id="section-15"><td class="docs"><div class="pilwrap"><a href="#section-15" class="pilcrow">&#182;</a></div><p>Initialize the Node EventEmitter on this</p>
-</td><td class="code"><div class="highlight"><pre>undefined</pre></div></td></tr><tr id="section-16"><td class="docs"><div class="pilwrap"><a href="#section-16" class="pilcrow">&#182;</a></div><p>Attach the config object (or an empty object if not defined, as well
+</td><td class="code"><div class="highlight"><pre>undefined</pre></div></td></tr><tr id="section-15"><td class="docs"><div class="pilwrap"><a href="#section-15" class="pilcrow">&#182;</a></div><p>Shim to support old-style call</p>
+</td><td class="code"><div class="highlight"><pre>undefined</pre></div></td></tr><tr id="section-16"><td class="docs"><div class="pilwrap"><a href="#section-16" class="pilcrow">&#182;</a></div><p>Initialize the Node EventEmitter on this</p>
+</td><td class="code"><div class="highlight"><pre>undefined</pre></div></td></tr><tr id="section-17"><td class="docs"><div class="pilwrap"><a href="#section-17" class="pilcrow">&#182;</a></div><p>Attach the config object (or an empty object if not defined, as well
 as the server and port</p>
-</td><td class="code"><div class="highlight"><pre>undefined</pre></div></td></tr><tr id="section-17"><td class="docs"><div class="pilwrap"><a href="#section-17" class="pilcrow">&#182;</a></div><p>Set up the server connection and request-handling properties</p>
-</td><td class="code"><div class="highlight"><pre>undefined</pre></div></td></tr><tr id="section-18"><td class="docs"><div class="pilwrap"><a href="#section-18" class="pilcrow">&#182;</a></div><p>Set up the garbage collector for requests that never receive a response
+</td><td class="code"><div class="highlight"><pre>undefined</pre></div></td></tr><tr id="section-18"><td class="docs"><div class="pilwrap"><a href="#section-18" class="pilcrow">&#182;</a></div><p>Set up the server connection and request-handling properties</p>
+</td><td class="code"><div class="highlight"><pre>undefined</pre></div></td></tr><tr id="section-19"><td class="docs"><div class="pilwrap"><a href="#section-19" class="pilcrow">&#182;</a></div><p>Set up the garbage collector for requests that never receive a response
 and build the buffer</p>
-</td><td class="code"><div class="highlight"><pre>undefined</pre></div></td></tr><tr id="section-19"><td class="docs"><div class="pilwrap"><a href="#section-19" class="pilcrow">&#182;</a></div><p>Attach the EventEmitter prototype as the TcpTransport's prototype's prototype</p>
-</td><td class="code"><div class="highlight"><pre>undefined</pre></div></td></tr><tr id="section-20"><td class="docs"><div class="pilwrap"><a href="#section-20" class="pilcrow">&#182;</a></div><p>The request logic is relatively straightforward, given the request
+</td><td class="code"><div class="highlight"><pre>undefined</pre></div></td></tr><tr id="section-20"><td class="docs"><div class="pilwrap"><a href="#section-20" class="pilcrow">&#182;</a></div><p>Attach the EventEmitter prototype as the TcpTransport's prototype's prototype</p>
+</td><td class="code"><div class="highlight"><pre>undefined</pre></div></td></tr><tr id="section-21"><td class="docs"><div class="pilwrap"><a href="#section-21" class="pilcrow">&#182;</a></div><p>The request logic is relatively straightforward, given the request
 body and callback function, register the request with the requests
 object, then if there is a valid connection at the moment, send the
 request to the server with a null terminator attached. This ordering
 guarantees that requests called during a connection issue won't be
 lost while a connection is re-established.</p>
-</td><td class="code"><div class="highlight"><pre>undefined</pre></div></td></tr><tr id="section-21"><td class="docs"><div class="pilwrap"><a href="#section-21" class="pilcrow">&#182;</a></div><p>The sweep function looks at the timestamps for each request, and any
+</td><td class="code"><div class="highlight"><pre>undefined</pre></div></td></tr><tr id="section-22"><td class="docs"><div class="pilwrap"><a href="#section-22" class="pilcrow">&#182;</a></div><p>The sweep function looks at the timestamps for each request, and any
 request that is longer lived than the timeout (default 2 min) will be
 culled and assumed lost.</p>
-</td><td class="code"><div class="highlight"><pre>undefined</pre></div></td></tr><tr id="section-22"><td class="docs"><div class="pilwrap"><a href="#section-22" class="pilcrow">&#182;</a></div><p>The clearReconnects function periodically resets the internal counter
+</td><td class="code"><div class="highlight"><pre>undefined</pre></div></td></tr><tr id="section-23"><td class="docs"><div class="pilwrap"><a href="#section-23" class="pilcrow">&#182;</a></div><p>The clearReconnects function periodically resets the internal counter
 of how many times we have re-established a connection to the server.
 If the connection is currently dead (undefined), it attempts a reconnect.</p>
-</td><td class="code"><div class="highlight"><pre>undefined</pre></div></td></tr><tr id="section-23"><td class="docs"><div class="pilwrap"><a href="#section-23" class="pilcrow">&#182;</a></div><p>When shutting down the client connection, the sweep is turned off, the
+</td><td class="code"><div class="highlight"><pre>undefined</pre></div></td></tr><tr id="section-24"><td class="docs"><div class="pilwrap"><a href="#section-24" class="pilcrow">&#182;</a></div><p>When shutting down the client connection, the sweep is turned off, the
 requests are removed, the number of allowed retries is set to zero, the
 connection is ended, and a callback, if any, is called.</p>
-</td><td class="code"><div class="highlight"><pre>undefined</pre></div></td></tr><tr id="section-24"><td class="docs"><div class="pilwrap"><a href="#section-24" class="pilcrow">&#182;</a></div><p>Export the client TcpTransport</p>
-</td><td class="code"><div class="highlight"><pre>undefined</pre></div></td></tr></tbody></table><div id="generated">generated Sat Dec 28 2013 19:41:38 GMT-0800 (PST)  </div></div></body></html>
+</td><td class="code"><div class="highlight"><pre>undefined</pre></div></td></tr><tr id="section-25"><td class="docs"><div class="pilwrap"><a href="#section-25" class="pilcrow">&#182;</a></div><p>Export the client TcpTransport</p>
+</td><td class="code"><div class="highlight"><pre>undefined</pre></div></td></tr></tbody></table><div id="generated">generated Thu May 15 2014 16:29:34 GMT-0700 (PDT)  </div></div></body></html>
