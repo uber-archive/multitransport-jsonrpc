@@ -3,6 +3,7 @@ var HttpTransport = jsonrpc.transports.server.http;
 var TcpTransport = jsonrpc.transports.server.tcp;
 var shared = require('../lib/transports/shared/tcp');
 var JSONRPCserver = jsonrpc.server;
+var ErrorCode = jsonrpc.errorcode;
 var http = require('http');
 var net = require('net');
 
@@ -48,7 +49,7 @@ exports.loopbackHttp = function(test) {
 };
 
 exports.failureTcp = function(test) {
-    test.expect(1);
+    test.expect(2);
     var jsonRpcServer = new JSONRPCserver(new TcpTransport(99863), {
         failure: function(arg1, callback) {
             callback(new Error("I have no idea what I'm doing"));
@@ -74,6 +75,7 @@ exports.failureTcp = function(test) {
     con.on('end', function() {
         try {
             var res = shared.parseBuffer(buffers, messageLen);
+            test.equal(res[1].error.code, ErrorCode.internalError);
             test.equal(res[1].error.message, "I have no idea what I'm doing", 'Returns the error as an error');
         } catch(e) {
             // Do nothing
@@ -84,7 +86,7 @@ exports.failureTcp = function(test) {
 };
 
 exports.nonexistentMethod = function(test) {
-    test.expect(2);
+    test.expect(3);
     var jsonRpcServer = new JSONRPCserver(new HttpTransport(99111), {});
     var testJSON = JSON.stringify({
         id: 25,
@@ -110,6 +112,7 @@ exports.nonexistentMethod = function(test) {
                 // Do nothing, test will fail
             }
             test.equal(resultObj.id, 25, 'The JSON-RPC server sent back the correct ID');
+            test.equal(resultObj.error.code, ErrorCode.methodNotFound);
             test.equal(resultObj.error.message, 'Requested method does not exist.', 'The JSON-RPC server returned the expected error message.');
             jsonRpcServer.shutdown(test.done.bind(test));
         });
@@ -119,7 +122,7 @@ exports.nonexistentMethod = function(test) {
 };
 
 exports.noncompliantJSON = function(test) {
-    test.expect(2);
+    test.expect(3);
     var jsonRpcServer = new JSONRPCserver(new HttpTransport(99123), {});
     var testJSON = JSON.stringify({ hello: 'world' });
     var req = http.request({
@@ -141,6 +144,7 @@ exports.noncompliantJSON = function(test) {
                 // Do nothing, test will fail
             }
             test.equal(resultObj.id, -1, 'The JSON-RPC server sent back the correct ID');
+            test.equal(resultObj.error.code, ErrorCode.invalidRequest);
             test.equal(resultObj.error.message, 'Did not receive valid JSON-RPC data.', 'The JSON-RPC server returned the expected error message.');
             jsonRpcServer.shutdown(test.done.bind(test));
         });
