@@ -48,6 +48,74 @@ exports.loopbackHttp = function(test) {
     req.end();
 };
 
+exports.loopbackHttpBatch = function(test) {
+    test.expect(8);
+    var jsonRpcServer = new JSONRPCserver(new HttpTransport(98123), {
+        loopback: function(arg1, callback) {
+            callback(null, arg1);
+        }
+    });
+    var testJSON = JSON.stringify([
+        {
+            id: 1,
+            method: 'loopback',
+            params: [{ hello: 'world' }]
+        },
+        {
+            id: 2,
+            method: 'noexists',
+            params: [{ hello: 'world' }]
+        },
+        {
+            id: 3,
+            method: 'loopback',
+            params: [{ hello: 'batch world' }]
+        }
+    ]);
+    var req = http.request({
+        hostname: 'localhost',
+        port: 98123,
+        path: '/',
+        method: 'POST'
+    }, function(res) {
+        res.setEncoding('utf8');
+        var resultString = '';
+        res.on('data', function(data) {
+            resultString += data;
+        });
+        res.on('end', function() {
+            test.equal(200, res.statusCode, 'The http transport provided an OK status code');
+            var resultObj;
+            try {
+                resultObj = JSON.parse(resultString);
+            } catch(e) {
+                // Do nothing, test will fail
+            }
+            test.equal(Array.isArray(resultObj), true, 'The batch response is array');
+            var obj;
+            {
+                obj = resultObj[0];
+                test.equal(obj.id, 1, 'The JSON-RPC server sent back the same ID');
+                test.equal(obj.result.hello, 'world', 'The loopback method worked as expected');
+            }
+            {
+                obj = resultObj[1];
+                test.equal(obj.id, 2, 'The JSON-RPC server sent back the same ID');
+                test.equal(obj.error.code, -32601, 'The method is not found');
+            }
+            {
+                obj = resultObj[2];
+                test.equal(obj.id, 3, 'The JSON-RPC server sent back the same ID');
+                test.equal(obj.result.hello, 'batch world', 'The loopback method worked as expected');
+            }
+            test.done();
+            jsonRpcServer.transport.server.close();
+        });
+    });
+    req.write(testJSON);
+    req.end();
+};
+
 exports.failureTcp = function(test) {
     test.expect(2);
     var jsonRpcServer = new JSONRPCserver(new TcpTransport(99863), {
