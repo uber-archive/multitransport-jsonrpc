@@ -5,6 +5,9 @@ node_js:
 before_install:
   npm install -g npm
 
+after_script:
+  npm run coveralls
+
 notifications:
     email:
         recipients:
