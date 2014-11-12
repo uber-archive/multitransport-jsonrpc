@@ -17,10 +17,11 @@ exports.loopback = function(test) {
 };
 
 exports.failureTcp = function(test) {
-    test.expect(2);
+    test.expect(3);
     jsonRpcClient.failure({foo: 'bar'}, function(err) {
         test.ok(!!err, 'error exists');
         test.equal("Whatchoo talkin' 'bout, Willis?", err.message, 'The error message was received correctly');
+        test.equal(1, err.prop, 'The error message was received correctly');
         child.kill();
         test.done();
     });

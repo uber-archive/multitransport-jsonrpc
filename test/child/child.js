@@ -7,6 +7,8 @@ var server = new JsonRpcServer(new JsonRpcChildProcTransport(), {
         callback(null, obj);
     },
     failure: function(obj, callback) {
-        callback(new Error("Whatchoo talkin' 'bout, Willis?"));
+        var error = new Error("Whatchoo talkin' 'bout, Willis?");
+        error.prop = 1;
+        callback(error);
     }
 });
