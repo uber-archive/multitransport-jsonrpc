@@ -49,6 +49,50 @@ exports.loopbackHttp = function(test) {
     req.end();
 };
 
+exports.loopbackHttp = function(test) {
+    test.expect(5);
+    var jsonRpcServer = new JSONRPCserver(new HttpTransport(98765), {
+        loopback: function(arg1, callback) {
+            callback(null, arg1);
+        }
+    });
+    var testJSON = JSON.stringify({
+        jsonrpc: "2.0",
+        id: 1,
+        method: 'loopback',
+        params: [{ hello: 'world' }]
+    });
+    var req = http.request({
+        hostname: 'localhost',
+        port: 98765,
+        path: '/',
+        method: 'POST'
+    }, function(res) {
+        res.setEncoding('utf8');
+        var resultString = '';
+        res.on('data', function(data) {
+            resultString += data;
+        });
+        res.on('end', function() {
+            test.equal(200, res.statusCode, 'The http transport provided an OK status code');
+            var resultObj;
+            try {
+                resultObj = JSON.parse(resultString);
+            } catch(e) {
+                // Do nothing, test will fail
+            }
+            test.equal(resultObj.jsonrpc, "2.0", 'The JSON-RPC server sent back the same jsonrpc version');
+            test.equal(resultObj.id, 1, 'The JSON-RPC server sent back the same ID');
+            test.equal(resultObj.result.hello, 'world', 'The loopback method worked as expected');
+            test.ok(resultObj.error === undefined, 'The error property is not defined on success');
+            test.done();
+            jsonRpcServer.transport.server.close();
+        });
+    });
+    req.write(testJSON);
+    req.end();
+};
+
 exports.loopbackHttpBatch = function(test) {
     test.expect(11);
     var jsonRpcServer = new JSONRPCserver(new HttpTransport(98123), {
