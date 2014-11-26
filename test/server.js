@@ -262,7 +262,7 @@ exports.noncompliantJSON = function(test) {
             } catch(e) {
                 // Do nothing, test will fail
             }
-            test.equal(resultObj.id, -1, 'The JSON-RPC server sent back the correct ID');
+            test.equal(resultObj.id, null, 'The JSON-RPC server sent back the correct ID');
             test.equal(resultObj.error.code, ErrorCode.invalidRequest);
             test.equal(resultObj.error.message, 'Did not receive valid JSON-RPC data.', 'The JSON-RPC server returned the expected error message.');
             test.ok(resultObj.result === undefined, 'The result property is not defined on error response');
