@@ -8,6 +8,7 @@ var ServerHttp = jsonrpc.transports.server.http;
 var ServerTcp = jsonrpc.transports.server.tcp;
 var ServerMiddleware = jsonrpc.transports.server.middleware;
 var Loopback = jsonrpc.transports.shared.loopback;
+var ErrorObject = jsonrpc.errorobject;
 var express = require('express');
 var http = require('http');
 var net = require('net');
@@ -33,14 +34,15 @@ exports.loopbackHttp = function(test) {
 };
 
 exports.failureTcp = function(test) {
-    test.expect(4);
+    test.expect(5);
     var server = new Server(new ServerTcp(44444), {
         failure: function(arg, callback) { callback(new Error("I have no idea what I'm doing.")); }
     });
     var client = new Client(new ClientTcp('localhost', 44444), {}, function(c) {
         c.failure('foo', function(err) {
             test.ok(!!err, 'error exists');
-            test.equal(err.message, "I have no idea what I'm doing.", 'error message transmitted successfully.');
+            test.equal(ErrorObject.internalError.code, err.code);
+            test.equal(err.data.message, "I have no idea what I'm doing.", 'error message transmitted successfully.');
             c.shutdown(function() {
                 server.shutdown(test.done.bind(test));
             });
@@ -52,14 +54,15 @@ exports.failureTcp = function(test) {
 };
 
 exports.objectFailureTcp = function(test) {
-    test.expect(4);
+    test.expect(5);
     var server = new Server(new ServerTcp(44444), {
         failure: function(arg, callback) { callback({ foo: "I have no idea what I'm doing." }); }
     });
     var client = new Client(new ClientTcp('localhost', 44444), {}, function(c) {
         c.failure('foo', function(err) {
             test.ok(!!err, 'error exists');
-            test.equal(err.foo, "I have no idea what I'm doing.", 'error message transmitted successfully.');
+            test.equal(ErrorObject.internalError.code, err.code);
+            test.equal(err.data.foo, "I have no idea what I'm doing.", 'error message transmitted successfully.');
             c.shutdown(function() {
                 server.shutdown(test.done.bind(test));
             });
@@ -83,7 +86,7 @@ exports.sweepedRequest = function(test) {
 };
 
 exports.loopbackLoopback = function(test) {
-    test.expect(3);
+    test.expect(4);
     var loopback = new Loopback();
     var server = new Server(loopback, {
         loopback: function(arg, callback) { callback(null, arg); },
@@ -95,7 +98,8 @@ exports.loopbackLoopback = function(test) {
         test.equal('foo', result, 'loopback works as expected');
         client.failure('foo', function(err) {
             test.ok(!!err, 'error exists');
-            test.equal(err.message, "I have no idea what I'm doing.", 'error message transmitted successfully.');
+            test.equal(ErrorObject.internalError.code, err.code);
+            test.equal(err.data.message, "I have no idea what I'm doing.", 'error message transmitted successfully.');
             server.shutdown();
             test.done();
         });
