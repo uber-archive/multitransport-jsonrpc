@@ -3,7 +3,7 @@ var HttpTransport = jsonrpc.transports.server.http;
 var TcpTransport = jsonrpc.transports.server.tcp;
 var shared = require('../lib/transports/shared/tcp');
 var JSONRPCserver = jsonrpc.server;
-var ErrorObject = jsonrpc.errorobject;
+var ErrorCode = jsonrpc.errorcode;
 var http = require('http');
 var net = require('net');
 
@@ -165,7 +165,7 @@ exports.loopbackHttpBatch = function(test) {
 };
 
 exports.failureTcp = function(test) {
-    test.expect(5);
+    test.expect(4);
     var jsonRpcServer = new JSONRPCserver(new TcpTransport(99863), {
         failure: function(arg1, callback) {
             callback(new Error("I have no idea what I'm doing"));
@@ -192,9 +192,8 @@ exports.failureTcp = function(test) {
         try {
             var res = shared.parseBuffer(buffers, messageLen);
             test.equal(res[1].id, 1, 'The JSON-RPC server sent back the same ID');
-            test.equal(res[1].error.code, ErrorObject.internalError.code);
-            test.equal(res[1].error.message, ErrorObject.internalError.message);
-            test.equal(res[1].error.data.message, "I have no idea what I'm doing", 'Returns the error as an error');
+            test.equal(res[1].error.code, ErrorCode.internalError);
+            test.equal(res[1].error.message, "I have no idea what I'm doing", 'Returns the error as an error');
             test.ok(res[1].result === undefined, 'The result property is not defined on error response');
         } catch(e) {
             // Do nothing
@@ -231,8 +230,8 @@ exports.nonexistentMethod = function(test) {
                 // Do nothing, test will fail
             }
             test.equal(resultObj.id, 25, 'The JSON-RPC server sent back the correct ID');
-            test.equal(resultObj.error.code, ErrorObject.methodNotFound.code);
-            test.equal(resultObj.error.message, ErrorObject.methodNotFound.message, 'The JSON-RPC server returned the expected error message.');
+            test.equal(resultObj.error.code, ErrorCode.methodNotFound);
+            test.equal(resultObj.error.message, 'Requested method does not exist.', 'The JSON-RPC server returned the expected error message.');
             test.ok(resultObj.result === undefined, 'The result property is not defined on error response');
             jsonRpcServer.shutdown(test.done.bind(test));
         });
@@ -264,8 +263,8 @@ exports.noncompliantJSON = function(test) {
                 // Do nothing, test will fail
             }
             test.equal(resultObj.id, null, 'The JSON-RPC server sent back the correct ID');
-            test.equal(resultObj.error.code, ErrorObject.invalidRequest.code);
-            test.equal(resultObj.error.message, ErrorObject.invalidRequest.message, 'The JSON-RPC server returned the expected error message.');
+            test.equal(resultObj.error.code, ErrorCode.invalidRequest);
+            test.equal(resultObj.error.message, 'Did not receive valid JSON-RPC data.', 'The JSON-RPC server returned the expected error message.');
             test.ok(resultObj.result === undefined, 'The result property is not defined on error response');
             jsonRpcServer.shutdown(test.done.bind(test));
         });
