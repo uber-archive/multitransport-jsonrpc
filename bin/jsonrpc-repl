@@ -21,7 +21,7 @@ new Client(new Transport(commander.server, commander.port), {}, function(client)
     console.log('The server reported the following methods:');
     console.log(Object.getOwnPropertyNames(client).filter(l('name', 'name !== "transport"')).join(', '));
     console.log('Access them with `rpc.foo(arg1, arg2, callbackFunction)`');
-    var r = repl.start('jsonrpc> ');
+    var r = repl.start({ prompt: 'jsonrpc> ', useGlobal: true });
     r.context.rpc = client;
     r.on('exit', process.exit.bind(process));
 });
