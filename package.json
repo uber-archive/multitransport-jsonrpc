@@ -10,7 +10,7 @@
     "Hiroki Horiuchi <horiuchi.g@gmail.com>"
   ],
   "name": "multitransport-jsonrpc",
-  "version": "0.8.2",
+  "version": "0.8.3",
   "description": "JSON-RPC where performance matters",
   "keywords": [
     "json-rpc",
