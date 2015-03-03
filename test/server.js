@@ -9,7 +9,7 @@ var net = require('net');
 
 exports.loopbackHttp = function(test) {
     test.expect(4);
-    var jsonRpcServer = new JSONRPCserver(new HttpTransport(98765), {
+    var jsonRpcServer = new JSONRPCserver(new HttpTransport(65432), {
         loopback: function(arg1, callback) {
             callback(null, arg1);
         }
@@ -21,7 +21,7 @@ exports.loopbackHttp = function(test) {
     });
     var req = http.request({
         hostname: 'localhost',
-        port: 98765,
+        port: 65432,
         path: '/',
         method: 'POST'
     }, function(res) {
@@ -51,7 +51,7 @@ exports.loopbackHttp = function(test) {
 
 exports.loopbackHttp = function(test) {
     test.expect(5);
-    var jsonRpcServer = new JSONRPCserver(new HttpTransport(98765), {
+    var jsonRpcServer = new JSONRPCserver(new HttpTransport(65432), {
         loopback: function(arg1, callback) {
             callback(null, arg1);
         }
@@ -64,7 +64,7 @@ exports.loopbackHttp = function(test) {
     });
     var req = http.request({
         hostname: 'localhost',
-        port: 98765,
+        port: 65432,
         path: '/',
         method: 'POST'
     }, function(res) {
@@ -95,7 +95,7 @@ exports.loopbackHttp = function(test) {
 
 exports.loopbackHttpBatch = function(test) {
     test.expect(11);
-    var jsonRpcServer = new JSONRPCserver(new HttpTransport(98123), {
+    var jsonRpcServer = new JSONRPCserver(new HttpTransport(65123), {
         loopback: function(arg1, callback) {
             callback(null, arg1);
         }
@@ -119,7 +119,7 @@ exports.loopbackHttpBatch = function(test) {
     ]);
     var req = http.request({
         hostname: 'localhost',
-        port: 98123,
+        port: 65123,
         path: '/',
         method: 'POST'
     }, function(res) {
@@ -166,13 +166,13 @@ exports.loopbackHttpBatch = function(test) {
 
 exports.failureTcp = function(test) {
     test.expect(4);
-    var jsonRpcServer = new JSONRPCserver(new TcpTransport(99863), {
+    var jsonRpcServer = new JSONRPCserver(new TcpTransport(64863), {
         failure: function(arg1, callback) {
             callback(new Error("I have no idea what I'm doing"));
         }
     });
     var con = net.connect({
-        port: 99863,
+        port: 64863,
         host: 'localhost'
     }, function() {
         con.write(shared.formatMessage({
@@ -205,7 +205,7 @@ exports.failureTcp = function(test) {
 
 exports.nonexistentMethod = function(test) {
     test.expect(4);
-    var jsonRpcServer = new JSONRPCserver(new HttpTransport(99111), {});
+    var jsonRpcServer = new JSONRPCserver(new HttpTransport(65111), {});
     var testJSON = JSON.stringify({
         id: 25,
         method: 'nonexistent',
@@ -213,7 +213,7 @@ exports.nonexistentMethod = function(test) {
     });
     var req = http.request({
         hostname: 'localhost',
-        port: 99111,
+        port: 65111,
         path: '/',
         method: 'POST'
     }, function(res) {
@@ -242,11 +242,11 @@ exports.nonexistentMethod = function(test) {
 
 exports.noncompliantJSON = function(test) {
     test.expect(4);
-    var jsonRpcServer = new JSONRPCserver(new HttpTransport(99123), {});
+    var jsonRpcServer = new JSONRPCserver(new HttpTransport(64123), {});
     var testJSON = JSON.stringify({ hello: 'world' });
     var req = http.request({
         hostname: 'localhost',
-        port: 99123,
+        port: 64123,
         path: '/',
         method: 'POST'
     }, function(res) {
