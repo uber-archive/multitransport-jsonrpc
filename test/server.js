@@ -166,13 +166,13 @@ exports.loopbackHttpBatch = function(test) {
 
 exports.failureTcp = function(test) {
     test.expect(4);
-    var jsonRpcServer = new JSONRPCserver(new TcpTransport(99863), {
+    var jsonRpcServer = new JSONRPCserver(new TcpTransport(64863), {
         failure: function(arg1, callback) {
             callback(new Error("I have no idea what I'm doing"));
         }
     });
     var con = net.connect({
-        port: 99863,
+        port: 64863,
         host: 'localhost'
     }, function() {
         con.write(shared.formatMessage({
