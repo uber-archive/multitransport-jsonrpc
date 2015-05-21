@@ -46,7 +46,7 @@
     "realpublish": "./prepublish.sh",
     "jshint": "test/jshint.sh",
     "test": "npm run jshint && istanbul --print=none cover nodeunit test/*.js && istanbul report text",
-    "cover": "istanbul cover --report none --print detail test/index.js",
+    "cover": "istanbul cover --report none --print detail nodeunit test/*.js",
     "view-cover": "istanbul report html && open ./coverage/index.html",
     "coveralls": "cat coverage/lcov.info | coveralls"
   }
