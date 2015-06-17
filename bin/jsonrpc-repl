@@ -12,12 +12,13 @@ commander
     .option('-s, --server <hostname>', 'The hostname the server is located on. (Default: "localhost")', 'localhost')
     .option('-p, --port <portnumber>', 'The port the server is bound to. (Default: 80)', 80)
     .option('-t, --tcp', 'Connects to the server via TCP instead of HTTP (Default: false)', false)
+    .option('--path <path>', 'The path part of the URL, e.g. "/rpc" (Default: "/")', '/')
     .parse(process.argv);
 
 var Transport = commander.tcp ? TcpTransport : HttpTransport;
 
-new Client(new Transport(commander.server, commander.port), {}, function(client) {
-    console.log('Connected to ' + commander.server + ':' + commander.port + ' over ' + (commander.tcp ? 'TCP' : 'HTTP'));
+new Client(new Transport(commander.server, commander.port, { path: commander.path }), {}, function(client) {
+    console.log('Connected to ' + commander.server + ':' + commander.port + commander.path + ' over ' + (commander.tcp ? 'TCP' : 'HTTP'));
     console.log('The server reported the following methods:');
     console.log(Object.getOwnPropertyNames(client).filter(l('name', 'name !== "transport"')).join(', '));
     console.log('Access them with `rpc.foo(arg1, arg2, callbackFunction)`');
