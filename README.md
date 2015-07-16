@@ -134,7 +134,15 @@ var client2 = new Client(new ClientHttp('localhost', 8080));
 
 The various transports also provide events you can listen on, using the [Node.js EventEmitter](http://nodejs.org/api/events.html) so the semantics should be familiar. The Client HTTP Transport provides:
 
-``message`` - This event is fired any time a message (response) is returned, and provides the registered callback with the JSON-RPC object received.
+``connection`` - This event is fired any time a connection (request-response pair) is established and provides the callback with these objects.
+
+``connectionClosed`` - This event is fired any time a connection is finished and provides the callback with the response object.
+
+``message`` - This event is fired any time a message (response) is returned, and provides the registered callback with the JSON-RPC object received and its length as a string.
+
+``outMessage`` - This event is fired any time a message (request) is provided, and provides the callback with the object and its length as a string.
+
+``error`` - This event is fired any time an error occurs parsing JSON or communicating to the server. The callback is provided the error object.
 
 ``shutdown`` - This event is fired when the transport is shut down, and provides no arguments to the callback handlers.
 
@@ -162,13 +170,19 @@ The various transports also provide events you can listen on, using the [Node.js
 
 The Client TCP Transport events are:
 
-``message`` - This event is fired whenever a complete message is received, and the registered callbacks receive the JSON-RPC object as their only argument.
+``message`` - This event is fired whenever a complete message is received, and the registered callbacks receive the JSON-RPC object and the object's length as a Pascal-style string.
+
+``outMessage`` - This event is fired whenever a request message is provided, and the callbacks receive the object and the object's length as a Pascal-style string.
 
 ``retry`` - This event is fired whenever the transport attempts to reconnect to the server. There are no arguments provided to the callback.
 
 ``end`` - This event is fired when the TCP connection is ended. If reconnection retries are enabled, it is only fired when the transport fails to reconnect.
 
 ``sweep`` - This event is fired when the transport clears out old requests that went past the expiration time. The callbacks receive an array of failed requests (if any) as the only argument.
+
+``babel`` - This event is fired whenever the transport cannot parse the message provided by the server. The contents of the buffer are dumped to the callbacks.
+
+``error`` - This event is fired whenever the transport has an unhandle-able error. The error object is provided to the callbacks.
 
 ``shutdown`` - This event is fired when the transport is shutdown.
 
@@ -206,9 +220,17 @@ The Client Child Process Transport events are:
 
 The Server HTTP Transport events are:
 
-``message`` - This event is fired whenever a complete message is received, and the registered callbacks receive the JSON-RPC object as their only argument.
+``connection`` - This event is fired whenever a new connection (request-response pair) comes in, and provides a reference to the request and response objects.
+
+``closedConnection`` - This event is fired whenever a connection is responded to and closed, and provides a reference to the response object.
+
+``message`` - This event is fired whenever a complete message (request) is received, and provides the message object as well as the message's length as a string.
+
+``outMessage`` - This event is fired whenever a complete message (response) is received, and provides the message object as well as the message's length as a string.
 
 ``listening`` - This event is fired whenever the HTTP server is open and listening for connections.
+
+``error`` - This event bubbles up any HTTP server errors that are received.
 
 ``shutdown`` - This event is fired when the transport is shutdown.
 
@@ -228,13 +250,17 @@ The Server TCP Transport events are:
 
 ``connection`` - This event is fired whenever a new connection is made to the TCP server. The callbacks receive a reference to the connection object as their only argument.
 
-``message`` - This event is fired whenever a JSON-RPC message is received. The callbacks receive the JSON-RPC object as their only argument.
+``message`` - This event is fired whenever a JSON-RPC message is received. The callbacks receive the parsed object and the length of the message as a Pascal-style string.
+
+``outMessage`` - This event is fired whenever a response message is received. The callbacks receive the object and the length of the message as a Pascal-style string.
 
 ``closedConnection`` - This event is fired whenever an open connection to a client is closed. The callbacks receive a reference to the connection object as their only argument.
 
 ``listening`` - This event is fired whenever the TCP server is open and listening for connections.
 
 ``retry`` - This event is fired whenever the TCP server cannot open the port to listen for connections and is retrying to connect.
+
+``babel`` - This event is fired whenever the transport cannot parse the message provided by the client. The contents of the buffer are dumped to the callbacks.
 
 ``error`` - This event is fired whenever an unhandled error in the TCP server occurs. If configured, the server will attempt to solve listen errors. The callbacks receive the error object as their only argument.
 
