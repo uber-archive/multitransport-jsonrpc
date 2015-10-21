@@ -90,3 +90,13 @@ exports.invalidHttp = function(test) {
         server.close(test.done.bind(test));
     });
 };
+
+exports.serverDownHttp = function(test) {
+    test.expect(1);
+    var jsonRpcClient = new JSONRPCclient(new HttpTransport('localhost', 23232));
+    jsonRpcClient.register('foo');
+    jsonRpcClient.foo('bar', function(err) {
+        test.ok(err instanceof Error, 'received the error response from the client library');
+        test.done();
+    });
+};
