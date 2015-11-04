@@ -4,7 +4,7 @@ node_js:
     - 0.10
     - 0.12
 before_install:
-  npm install -g npm
+  npm install -g npm@1.4.x
 
 after_script:
   npm run coveralls
