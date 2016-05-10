@@ -242,62 +242,7 @@ function perf(testString, test) {
         loopback: function(arg, callback) { callback(null, arg); }
     });
     var tcpClient = new Client(new ClientTcp('localhost', 9001));
-    tcpClient.register('loopback');
-    var tcpCount = 0, tcpStart = new Date().getTime(), tcpEnd;
-    for(var i = 0; i < numMessages; i++) {
-        /* jshint loopfunc: true */
-        tcpClient.loopback(testString || i, function() {
-            tcpCount++;
-            if(tcpCount === numMessages) {
-                test.ok(true, 'tcp finished');
-                tcpEnd = new Date().getTime();
-                var tcpTime = tcpEnd - tcpStart;
-                var tcpRate = numMessages * 1000 / tcpTime;
-                console.log("TCP took " + tcpTime + "ms, " + tcpRate + " reqs/sec");
-                tcpClient.shutdown();
-                tcpServer.shutdown();
-                next();
-            }
-        });
-    }
-    function next() {
-        var httpClient = new Client(new ClientHttp('localhost', 9002));
-        httpClient.register('loopback');
-        var httpCount = 0, httpStart = new Date().getTime(), httpEnd;
-        for(var i = 0; i < numMessages; i++) {
-            /* jshint loopfunc: true */
-            httpClient.loopback(i, function() {
-                httpCount++;
-                if(httpCount === numMessages) {
-                    test.ok(true, 'http finished');
-                    httpEnd = new Date().getTime();
-                    var httpTime = httpEnd - httpStart;
-                    var httpRate = numMessages * 1000 / httpTime;
-                    console.log("HTTP took " + httpTime + "ms, " + httpRate + " reqs/sec");
-                    httpClient.shutdown();
-                    httpServer.shutdown();
-                    more();
-                }
-            });
-        }
-    }
-    function more() {
-        var childProcCount = 0, childProcStart = Date.now(), childProcEnd;
-        for(var i = 0; i < numMessages; i++) {
-            /* jshint loopfunc: true */
-            childProcClient.loopback(i, function() {
-                childProcCount++;
-                if(childProcCount === numMessages) {
-                    test.ok(true, 'childProc finished');
-                    childProcEnd = Date.now();
-                    var childProcTime = childProcEnd - childProcStart;
-                    var childProcRate = numMessages * 1000 / childProcTime;
-                    console.log("Child Proc IPC took " + childProcTime + "ms, " + childProcRate + " reqs/sec");
-                    last();
-                }
-            });
-        }
-    }
+
     function last() {
         var loopbackClient = new Client(loopback);
         loopbackClient.register('loopback');
@@ -320,6 +265,64 @@ function perf(testString, test) {
         }
     }
 
+    function more() {
+        var childProcCount = 0, childProcStart = Date.now(), childProcEnd;
+        for(var i = 0; i < numMessages; i++) {
+            /* jshint loopfunc: true */
+            childProcClient.loopback(i, function() {
+                childProcCount++;
+                if(childProcCount === numMessages) {
+                    test.ok(true, 'childProc finished');
+                    childProcEnd = Date.now();
+                    var childProcTime = childProcEnd - childProcStart;
+                    var childProcRate = numMessages * 1000 / childProcTime;
+                    console.log("Child Proc IPC took " + childProcTime + "ms, " + childProcRate + " reqs/sec");
+                    last();
+                }
+            });
+        }
+    }
+
+    function next() {
+        var httpClient = new Client(new ClientHttp('localhost', 9002));
+        httpClient.register('loopback');
+        var httpCount = 0, httpStart = new Date().getTime(), httpEnd;
+        for(var i = 0; i < numMessages; i++) {
+            /* jshint loopfunc: true */
+            httpClient.loopback(i, function() {
+                httpCount++;
+                if(httpCount === numMessages) {
+                    test.ok(true, 'http finished');
+                    httpEnd = new Date().getTime();
+                    var httpTime = httpEnd - httpStart;
+                    var httpRate = numMessages * 1000 / httpTime;
+                    console.log("HTTP took " + httpTime + "ms, " + httpRate + " reqs/sec");
+                    httpClient.shutdown();
+                    httpServer.shutdown();
+                    more();
+                }
+            });
+        }
+    }
+
+    tcpClient.register('loopback');
+    var tcpCount = 0, tcpStart = new Date().getTime(), tcpEnd;
+    for(var i = 0; i < numMessages; i++) {
+        /* jshint loopfunc: true */
+        tcpClient.loopback(testString || i, function() {
+            tcpCount++;
+            if(tcpCount === numMessages) {
+                test.ok(true, 'tcp finished');
+                tcpEnd = new Date().getTime();
+                var tcpTime = tcpEnd - tcpStart;
+                var tcpRate = numMessages * 1000 / tcpTime;
+                console.log("TCP took " + tcpTime + "ms, " + tcpRate + " reqs/sec");
+                tcpClient.shutdown();
+                tcpServer.shutdown();
+                next();
+            }
+        });
+    }
 }
 
 exports.perfSimple = perf.bind(null, null);
