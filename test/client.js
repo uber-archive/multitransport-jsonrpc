@@ -39,6 +39,72 @@ exports.loopbackHttp = function(test) {
     });
 };
 
+exports.loopbackHttpWithCustomIdGenerator = function(test) {
+    test.expect(2);
+    var id = 2;
+    var generator = function() {
+        return id;
+    };
+    var server = http.createServer(function(req, res) {
+        var buffer = '';
+        req.setEncoding('utf8');
+        req.on('data', function(data) {
+            buffer += data;
+        });
+
+        req.on('end', function() {
+            var json;
+            try {
+                json = JSON.parse(buffer);
+            }
+            catch(e) {
+            }
+            test.equal(json.id, id);
+            res.write(JSON.stringify({
+                id : json && json.id,
+                result: json && json.params
+            }));
+            res.end();
+        });
+    });
+    server.listen(22722);
+    var options = {
+        autoRegister: false,
+        idGenerator: generator
+    };
+    var jsonRpcClient = new JSONRPCclient(new HttpTransport('localhost', 22722), options);
+    jsonRpcClient.register('foo');
+    jsonRpcClient.foo('bar', function(err, result) {
+        test.equal('bar', result, 'Looped-back correctly');
+        server.close(function() {
+            test.done();
+        });
+    });
+};
+
+exports.loopbackHttpWithInvalidIdGenerator = function(test) {
+    test.expect(2);
+    var server = http.createServer(function(req, res) {
+        req.on('end', function() {
+            res.end();
+        });
+    });
+    server.listen(22223);
+    var generator = function() {};
+    var options = {
+        idGenerator: generator
+    };
+    var jsonRpcClient = new JSONRPCclient(new HttpTransport('localhost', 22223), options);
+    jsonRpcClient.register('foo');
+    jsonRpcClient.foo('bar', function(err) {
+        test.ok(!!err, 'error is thrown');
+        test.equals('Request id generator function should return an id', err.message);
+        server.close(function() {
+            test.done();
+        });
+    });
+};
+
 exports.failureTcp = function(test) {
     test.expect(2);
     var server = net.createServer(function(con) {
